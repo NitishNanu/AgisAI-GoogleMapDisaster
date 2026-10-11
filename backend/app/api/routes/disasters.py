@@ -15,6 +15,7 @@ Provides disaster management endpoints matching the Master Development Prompt:
 """
 
 from typing import Any
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
@@ -26,8 +27,14 @@ from app.modules.auth.models import User
 from app.modules.incident.models import Incident
 from app.modules.incident.schemas import (
     IncidentCreate as DisasterCreate,
+)
+from app.modules.incident.schemas import (
     IncidentResponse as DisasterResponse,
+)
+from app.modules.incident.schemas import (
     IncidentSummary as DisasterSummary,
+)
+from app.modules.incident.schemas import (
     IncidentUpdate as DisasterUpdate,
 )
 from app.modules.incident.service import IncidentService

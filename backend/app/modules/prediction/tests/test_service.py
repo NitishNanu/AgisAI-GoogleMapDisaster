@@ -1,6 +1,5 @@
 """Prediction Service Unit Tests."""
 
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 from app.modules.prediction.schemas import (

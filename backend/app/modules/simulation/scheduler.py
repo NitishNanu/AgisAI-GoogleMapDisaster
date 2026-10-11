@@ -43,15 +43,15 @@ def setup_scheduler() -> None:
         id="simulation_tick_job",
         replace_existing=True,
     )
-    
+
     # Start the scheduler (non-blocking)
     scheduler.start()
-    
+
     # Mark engine as running
     engine.is_running = True
-    
+
     logger.info(
-        "simulation_scheduler_started", 
+        "simulation_scheduler_started",
         interval_seconds=settings.SIMULATION_TICK_INTERVAL_SECONDS
     )
 

@@ -4,8 +4,6 @@ from sqlalchemy.orm import Session
 
 from app.modules.hospital.models import Hospital
 from app.modules.incident.models import Incident
-from app.modules.resource.models import RescueTeam, ResourceAssignment
-from app.modules.simulation.engine import engine as twin_engine
 
 
 class TestWebSocketStream:

@@ -9,7 +9,11 @@ Encapsulates all authentication business logic. The service layer:
 
 from sqlalchemy.orm import Session
 
-from app.core.common.exceptions import ConflictException, EntityNotFoundException, UnauthorizedException
+from app.core.common.exceptions import (
+    ConflictException,
+    EntityNotFoundException,
+    UnauthorizedException,
+)
 from app.core.common.logging import logger
 from app.core.config.settings import settings
 from app.core.security.jwt import (

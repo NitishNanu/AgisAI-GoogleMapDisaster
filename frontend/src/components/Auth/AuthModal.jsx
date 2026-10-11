@@ -32,9 +32,9 @@ const DEMO_PERSONAS = [
         icon: "🚑"
     },
     {
-        name: "Admin Root",
-        email: "admin@aegis.local",
-        password: "Password123!",
+        name: "Nitish (Admin)",
+        email: "nitrexo19@gmail.com",
+        password: "kumar19##Nitish",
         role: "ADMIN",
         desc: "Complete platform control, user management & system settings",
         icon: "🛡️"

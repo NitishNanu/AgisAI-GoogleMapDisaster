@@ -1,11 +1,10 @@
 ﻿"""Analytics Service Unit Tests."""
 
-import pytest
 
 from app.modules.analytics.schemas import (
     DashboardSummary,
-    ResourceUtilizationReport,
     EmergencyAnalyticsSummary,
+    ResourceUtilizationReport,
 )
 
 
@@ -108,7 +107,6 @@ class TestResourceUtilization:
 
 class TestLegacySummary:
     def test_emergency_summary_returns_correct_type(self, mocker):
-        from sqlalchemy import func
         mock_db = mocker.MagicMock()
         mock_db.query.return_value.filter.return_value.count.return_value = 3
         mock_db.query.return_value.count.return_value = 8

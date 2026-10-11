@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.common.response import ApiResponse
 from app.core.database.session import get_db
-from app.core.security.jwt import RequireRole, get_current_active_user
+from app.core.security.jwt import RequireRole
 from app.modules.auth.models import User
 from app.modules.resource.schemas import (
     AssignmentCreate,

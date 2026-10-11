@@ -7,7 +7,8 @@ Provides:
 - Secondary Ollama vision reasoning with strict validation & evidence auditing.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Any
+
 import structlog
 
 logger = structlog.get_logger("aegis_ai.vision")
@@ -29,13 +30,13 @@ class ComputerVisionAnalyzer:
     Unified Computer Vision analysis pipeline for emergency triage.
     """
 
-    def analyze_image_bytes(self, image_data: bytes, filename: str = "") -> Dict[str, Any]:
+    def analyze_image_bytes(self, image_data: bytes, filename: str = "") -> dict[str, Any]:
         """
         Runs deep learning classification and hazard detection on raw image bytes.
         """
         # Feature extraction heuristic / deep learning wrapper
         size_kb = len(image_data) / 1024.0
-        
+
         # Determine classification from visual characteristics
         # In production this loads Torchvision ResNet/EfficientNet weights
         primary_class = "flood" if "flood" in filename.lower() else "fire" if "fire" in filename.lower() else "earthquake_damage" if "quake" in filename.lower() else "normal"

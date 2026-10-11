@@ -7,10 +7,9 @@ Features:
 - Route safety score & hazard freshness metadata.
 """
 
-from typing import Dict, List, Tuple, Optional
 import math
-import heapq
 import time
+
 import structlog
 
 logger = structlog.get_logger("aegis_ai.routing.hazard_router")
@@ -23,7 +22,7 @@ class DynamicHazardRouter:
 
     def __init__(self):
         # In-memory road network nodes & hazard overlays
-        self.active_hazards: List[Dict[str, any]] = []
+        self.active_hazards: list[dict[str, any]] = []
 
     def register_hazard(self, lat: float, lon: float, hazard_type: str, radius_km: float = 0.5, penalty_factor: float = 5.0) -> None:
         """Adds or updates an active road hazard zone."""
@@ -46,7 +45,7 @@ class DynamicHazardRouter:
         end_lat: float,
         end_lon: float,
         avoid_hazards: bool = True,
-    ) -> Dict[str, any]:
+    ) -> dict[str, any]:
         """
         Calculates safe route geometry, distance, and duration considering active road hazards.
         """

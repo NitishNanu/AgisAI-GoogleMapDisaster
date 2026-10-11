@@ -4,7 +4,7 @@ Performs semantic boundary checks, geographic sanity validation, and resource co
 Python 3.10 compatible.
 """
 
-from typing import List
+
 from app.modules.scenario.schemas import (
     ScenarioCreateRequest,
     ScenarioValidateResponse,
@@ -27,7 +27,7 @@ class ScenarioValidator:
 
     @classmethod
     def validate(cls, payload: ScenarioCreateRequest) -> ScenarioValidateResponse:
-        errors: List[ValidationErrorDetail] = []
+        errors: list[ValidationErrorDetail] = []
 
         # 1. Disaster Configuration Validation
         disaster = payload.disaster

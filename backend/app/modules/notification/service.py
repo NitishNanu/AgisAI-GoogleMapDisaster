@@ -18,10 +18,10 @@ class NotificationService:
         """Create a new alert (can be triggered internally or via API)."""
         repo = NotificationRepository(db)
         alert = repo.create(**payload.model_dump())
-        
+
         logger.info(
-            "alert_created", 
-            alert_id=alert.id, 
+            "alert_created",
+            alert_id=alert.id,
             severity=alert.severity,
             target_role=alert.target_role,
             target_user=alert.target_user_id

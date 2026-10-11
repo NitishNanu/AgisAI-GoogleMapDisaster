@@ -10,8 +10,7 @@ Extracts key operational emergency entities from unstructured text:
 """
 
 import re
-from typing import Dict, List, Any
-
+from typing import Any
 
 LOCATION_PATTERNS = [
     r"(?:near|at|around|close to|on|along|by|in)\s+([A-Z0-9][a-zA-Z0-9\s\.\,\-]+?(?:Street|St|Road|Rd|Avenue|Ave|Boulevard|Blvd|Sector\s+\d+|Zone\s+[A-Z\d]+|Highway|Bridge|Square|Park|Hospital|Station|Center))",
@@ -36,7 +35,7 @@ class EmergencyEntityExtractor:
     """
 
     @staticmethod
-    def extract_entities(text: str) -> Dict[str, Any]:
+    def extract_entities(text: str) -> dict[str, Any]:
         """
         Extracts structured entities from emergency report string.
         """

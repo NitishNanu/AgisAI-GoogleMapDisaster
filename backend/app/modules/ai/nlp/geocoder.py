@@ -5,7 +5,6 @@ Pipeline:
 Raw Report -> NER -> Location Candidates -> Geocoder -> Administrative Boundary Validation -> Confidence Scoring.
 """
 
-from typing import Dict, List, Optional, Tuple
 import httpx
 import structlog
 
@@ -29,7 +28,7 @@ class DisasterGeocoder:
         self.nominatim_url = nominatim_url
         self.bounds = DEFAULT_ADMIN_BOUNDS
 
-    async def geocode_candidate(self, location_text: str) -> Optional[Dict[str, any]]:
+    async def geocode_candidate(self, location_text: str) -> dict[str, any] | None:
         """
         Geocodes a candidate location name and validates against boundaries.
         """
@@ -57,7 +56,7 @@ class DisasterGeocoder:
                         lat = float(first["lat"])
                         lon = float(first["lon"])
                         confidence = float(first.get("importance", 0.75))
-                        
+
                         is_within_bounds = self._is_within_bounds(lat, lon)
                         return {
                             "latitude": lat,
@@ -78,7 +77,7 @@ class DisasterGeocoder:
             and self.bounds["min_lon"] <= lon <= self.bounds["max_lon"]
         )
 
-    def _match_synthetic_zone(self, text: str) -> Optional[Dict[str, any]]:
+    def _match_synthetic_zone(self, text: str) -> dict[str, any] | None:
         """Matches standard Aegis City digital twin grid references."""
         import re
         match = re.search(r"Sector\s+(\d+)", text, re.IGNORECASE)

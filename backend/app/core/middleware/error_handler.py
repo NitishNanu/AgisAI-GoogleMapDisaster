@@ -16,7 +16,6 @@ import uuid
 
 import structlog
 from fastapi import Request, status
-from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import Response

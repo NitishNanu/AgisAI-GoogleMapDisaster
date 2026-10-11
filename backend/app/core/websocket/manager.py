@@ -1,9 +1,8 @@
-import asyncio
-import json
 from datetime import datetime, timezone
 from typing import Any
-from fastapi import WebSocket
+
 import structlog
+from fastapi import WebSocket
 
 logger = structlog.get_logger("aegis_ai.websocket.manager")
 

@@ -14,17 +14,14 @@ Covers:
 from __future__ import annotations
 
 import itertools
-from typing import Any
 
 import pytest
 
 from app.modules.ai.decision_engine.optimizer import (
     GlobalAssignmentOptimizer,
     OptimizationResult,
-    _INFEASIBLE_COST,
 )
 from app.modules.ai.schemas import DecisionCandidateDTO, IncidentStateDTO
-
 
 # ---------------------------------------------------------------------------
 # Test helpers

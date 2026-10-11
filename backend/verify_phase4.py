@@ -2,18 +2,16 @@
 RescueNet AI — Live Verification Script against PostgreSQL.
 """
 
-import sys
 import asyncio
 import json
+import sys
 
 sys.path.insert(0, "d:/PROJECTS/GoogleMapsDisaster/backend")
 
 from app.core.database.session import SessionLocal
-from app.modules.auth.models import User
 from app.modules.incident.models import Incident
-from app.modules.resource.models import RescueTeam, ResourceAssignment
+from app.modules.resource.models import RescueTeam
 from app.services.assignment_service import AssignmentService
-
 from app.services.geospatial_service import GeospatialService
 from app.services.mission_service import MissionService
 from app.services.smart_dispatch_service import SmartDispatchService
@@ -80,7 +78,7 @@ async def main():
 
         # 5. Mission State Machine Lifecycle Progression
         print("\n5. Progressing Mission Lifecycle State Machine...")
-        
+
         # Step 5a: ASSIGNED -> EN_ROUTE
         assignment = AssignmentService.update_assignment_status(db, assignment.id, "EN_ROUTE")
         print(f"   -> Updated to EN_ROUTE (Started At: {assignment.started_at})")

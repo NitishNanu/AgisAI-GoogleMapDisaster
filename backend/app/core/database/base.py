@@ -6,7 +6,7 @@ Provides TimestampedBase, a mixin that gives every model automatic
 ensuring clock consistency regardless of application timezone.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import DateTime, func

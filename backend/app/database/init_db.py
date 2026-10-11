@@ -9,11 +9,7 @@ from app.core.database.base import Base
 from app.core.database.session import SessionLocal, engine
 from app.modules.analytics.models import AnalyticsReport, SystemMetricSnapshot  # noqa: F401
 from app.modules.auth.models import User
-from app.modules.hospital.models import Hospital
 from app.modules.incident.models import Incident
-from app.modules.notification.models import Alert
-from app.modules.resource.models import RescueTeam, ResourceAssignment, Shelter
-from app.modules.scenario.models import Scenario, ScenarioRun
 
 logger = structlog.get_logger("aegis_ai.database")
 
@@ -42,6 +38,73 @@ def init_db():
         Base.metadata.create_all(bind=engine)
         logger.info("database_tables_verified")
 
+        # Ensure requested admin and demo users exist
+        db = SessionLocal()
+        try:
+            from app.core.security.jwt import hash_password
+
+            users_to_ensure = [
+                {
+                    "email": "nitrexo19@gmail.com",
+                    "name": "Nitish Kumar",
+                    "password": "kumar19##Nitish",
+                    "role": "ADMIN",
+                },
+                {
+                    "email": "admin@aegis.local",
+                    "name": "Admin Root",
+                    "password": "Password123!",
+                    "role": "ADMIN",
+                },
+                {
+                    "email": "commander@aegis.local",
+                    "name": "Commander Alpha",
+                    "password": "Password123!",
+                    "role": "COMMANDER",
+                },
+                {
+                    "email": "dispatcher@aegis.local",
+                    "name": "Dispatcher Dave",
+                    "password": "Password123!",
+                    "role": "DISPATCHER",
+                },
+                {
+                    "email": "medic@aegis.local",
+                    "name": "Medic Mary",
+                    "password": "Password123!",
+                    "role": "MEDIC",
+                },
+                {
+                    "email": "citizen@aegis.local",
+                    "name": "Citizen John",
+                    "password": "Password123!",
+                    "role": "CITIZEN",
+                },
+            ]
+
+            for u_data in users_to_ensure:
+                existing_user = db.query(User).filter(User.email == u_data["email"]).first()
+                if existing_user:
+                    existing_user.password_hash = hash_password(u_data["password"])
+                    existing_user.role = u_data["role"]
+                    existing_user.is_active = True
+                else:
+                    new_user = User(
+                        name=u_data["name"],
+                        email=u_data["email"],
+                        password_hash=hash_password(u_data["password"]),
+                        role=u_data["role"],
+                        is_active=True,
+                    )
+                    db.add(new_user)
+            db.commit()
+            logger.info("bootstrap_users_verified")
+        except Exception as user_err:
+            db.rollback()
+            logger.error("bootstrap_users_failed", error=str(user_err))
+        finally:
+            db.close()
+
         # Auto-seed if database is empty
         db = SessionLocal()
         try:
@@ -49,14 +112,10 @@ def init_db():
             if incident_count == 0:
                 logger.info("database_empty_auto_seeding")
                 try:
-                    from app.database.seed import seed_data  # noqa: PLC0415
-                    seed_data()
-                except ImportError:
-                    try:
-                        from app.database.seeder import seed_data as seed_data2  # noqa: PLC0415
-                        seed_data2()
-                    except ImportError:
-                        logger.warning("seed_module_not_found", hint="Create app/database/seed.py with a seed_data() function.")
+                    from app.database.seeder import seed_database
+                    seed_database()
+                except Exception as seed_err:
+                    logger.warning("seeder_failed", error=str(seed_err))
         finally:
             db.close()
 

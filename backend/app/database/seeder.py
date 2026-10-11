@@ -1,4 +1,4 @@
-﻿"""
+"""
 AegisAI Database Seeder — Production-Grade Idempotent Seed Script.
 
 Creates a complete, realistic dataset for the Chandigarh/Mohali/Panchkula
@@ -101,25 +101,23 @@ def seed_database() -> None:
         logger.info("seeder_started")
 
         # -- Users --------------------------------------------------------------
-        admin, created = _upsert_user(db, "admin@aegisai.io", {
-            "email": "admin@aegisai.io",
-            "hashed_password": hash_password("Admin@AegisAI2026!"),
-            "full_name": "Platform Administrator",
+        admin, created = _upsert_user(db, "nitrexo19@gmail.com", {
+            "name": "Nitish Kumar",
+            "email": "nitrexo19@gmail.com",
+            "password_hash": hash_password("kumar19##Nitish"),
             "role": "ADMIN",
             "is_active": True,
-            "is_verified": True,
         })
         if created:
             stats["users"] += 1
             logger.info("user_created", email=admin.email, role="ADMIN")
 
         commander, created = _upsert_user(db, "commander@aegisai.io", {
+            "name": "Field Commander Singh",
             "email": "commander@aegisai.io",
-            "hashed_password": hash_password("Commander@AegisAI2026!"),
-            "full_name": "Field Commander Singh",
+            "password_hash": hash_password("Commander@AegisAI2026!"),
             "role": "COMMANDER",
             "is_active": True,
-            "is_verified": True,
         })
         if created:
             stats["users"] += 1
@@ -168,7 +166,7 @@ def seed_database() -> None:
         ]
 
         for h_data in hospitals_data:
-            _, created = _upsert_hospital(db, h_data["name"], h_data)
+            _, created = _upsert_hospital(db, str(h_data["name"]), h_data)
             if created:
                 stats["hospitals"] += 1
 
@@ -222,7 +220,7 @@ def seed_database() -> None:
         ]
 
         for t_data in teams_data:
-            _, created = _upsert_team(db, t_data["team_name"], t_data)
+            _, created = _upsert_team(db, str(t_data["team_name"]), t_data)
             if created:
                 stats["teams"] += 1
 
@@ -270,7 +268,7 @@ def seed_database() -> None:
         ]
 
         for s_data in shelters_data:
-            _, created = _upsert_shelter(db, s_data["name"], s_data)
+            _, created = _upsert_shelter(db, str(s_data["name"]), s_data)
             if created:
                 stats["shelters"] += 1
 
@@ -376,6 +374,9 @@ def seed_database() -> None:
         raise
     finally:
         db.close()
+
+
+seed_data = seed_database
 
 
 if __name__ == "__main__":

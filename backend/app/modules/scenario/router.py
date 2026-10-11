@@ -4,13 +4,14 @@ Provides endpoints for scenario configuration, validation, baseline risk preview
 Python 3.10 compatible.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.common.response import ApiResponse
 from app.core.database.session import get_db
-from app.core.security.jwt import RequireRole, get_current_active_user, get_optional_user
+from app.core.security.jwt import RequireRole, get_optional_user
 from app.modules.auth.models import User
 from app.modules.scenario.schemas import (
     PresetResponse,
@@ -31,10 +32,10 @@ router = APIRouter(prefix="/scenarios", tags=["Scenario Management & Designer"])
 
 @router.get(
     "/presets",
-    response_model=ApiResponse[List[PresetResponse]],
+    response_model=ApiResponse[list[PresetResponse]],
     summary="Get standardized disaster scenario presets",
 )
-def get_scenario_presets() -> ApiResponse[List[PresetResponse]]:
+def get_scenario_presets() -> ApiResponse[list[PresetResponse]]:
     """Return catalog of standardized, ready-to-run disaster scenario blueprints."""
     presets = ScenarioService.get_presets()
     return ApiResponse.ok(data=presets, message=f"Retrieved {len(presets)} scenario presets.")
@@ -94,20 +95,20 @@ def create_scenario(
 
 @router.get(
     "",
-    response_model=ApiResponse[Dict[str, Any]],
+    response_model=ApiResponse[dict[str, Any]],
     summary="List scenarios with filtering and search",
 )
 def list_scenarios(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    status: Optional[str] = Query(default=None, description="Filter by status: READY | RUNNING | DRAFT"),
-    disaster_type: Optional[str] = Query(default=None, description="Filter by disaster type"),
-    severity: Optional[str] = Query(default=None, description="Filter by severity"),
-    is_template: Optional[bool] = Query(default=None, description="Filter templates only"),
-    search: Optional[str] = Query(default=None, description="Search keyword in title/desc"),
+    status: str | None = Query(default=None, description="Filter by status: READY | RUNNING | DRAFT"),
+    disaster_type: str | None = Query(default=None, description="Filter by disaster type"),
+    severity: str | None = Query(default=None, description="Filter by severity"),
+    is_template: bool | None = Query(default=None, description="Filter templates only"),
+    search: str | None = Query(default=None, description="Search keyword in title/desc"),
     db: Session = Depends(get_db),
     _: User | None = Depends(get_optional_user),
-) -> ApiResponse[Dict[str, Any]]:
+) -> ApiResponse[dict[str, Any]]:
     """Retrieve paginated scenarios with search and filter options."""
     skip = (page - 1) * page_size
     scenarios, total = ScenarioService.get_scenarios(
@@ -230,14 +231,14 @@ async def launch_scenario(
 
 @router.get(
     "/{scenario_id}/runs",
-    response_model=ApiResponse[List[ScenarioRunResponse]],
+    response_model=ApiResponse[list[ScenarioRunResponse]],
     summary="Get execution history for a scenario",
 )
 def get_scenario_runs(
     scenario_id: str,
     db: Session = Depends(get_db),
     _: User | None = Depends(get_optional_user),
-) -> ApiResponse[List[ScenarioRunResponse]]:
+) -> ApiResponse[list[ScenarioRunResponse]]:
     """Retrieve historical execution runs for a scenario."""
     runs = ScenarioService.get_scenario_runs(db, scenario_id)
     return ApiResponse.ok(
@@ -248,14 +249,14 @@ def get_scenario_runs(
 
 @router.get(
     "/{scenario_id}/snapshot",
-    response_model=ApiResponse[Dict[str, Any]],
+    response_model=ApiResponse[dict[str, Any]],
     summary="Get initial snapshot recorded at scenario launch",
 )
 def get_scenario_snapshot(
     scenario_id: str,
     db: Session = Depends(get_db),
     _: User | None = Depends(get_optional_user),
-) -> ApiResponse[Dict[str, Any]]:
+) -> ApiResponse[dict[str, Any]]:
     """Get the initial digital twin snapshot recorded for the latest run of this scenario."""
     runs = ScenarioService.get_scenario_runs(db, scenario_id)
     if not runs or not runs[0].initial_state_snapshot:

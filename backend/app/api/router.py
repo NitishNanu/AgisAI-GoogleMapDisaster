@@ -11,12 +11,13 @@ from app.api.routes.assignments import router as assignments_router
 from app.api.routes.disasters import router as disasters_router
 from app.api.routes.health import router as health_router
 from app.api.routes.missions import router as missions_router
-from app.modules.ai.router import router as ai_router
 from app.modules.ai.agents.router import router as agents_router
+from app.modules.ai.router import router as ai_router
 from app.modules.analytics.router import router as analytics_router
 from app.modules.audit.router import router as audit_router
 from app.modules.auth.router import router as auth_router
 from app.modules.auth.router import users_router
+from app.modules.external_feeds.router import router as feeds_router
 from app.modules.hospital.router import router as hospital_router
 from app.modules.incident.router import router as incident_router
 from app.modules.ml_intelligence.router import assistant_router
@@ -26,8 +27,6 @@ from app.modules.prediction.router import router as prediction_router
 from app.modules.resource.router import router as resource_router
 from app.modules.scenario.router import router as scenario_router
 from app.modules.simulation.router import router as simulation_router
-
-from app.modules.external_feeds.router import router as feeds_router
 
 api_router = APIRouter()
 

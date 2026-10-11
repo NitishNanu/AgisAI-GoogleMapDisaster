@@ -7,14 +7,14 @@ Provides a formal Reinforcement Learning environment (gymnasium.Env) modeling em
 - Reward Function: Penalizes casualty accumulation, delayed response, and resource over-exhaustion.
 """
 
-from typing import Any, Tuple
-import numpy as np
-import structlog
-
-logger = structlog.get_logger("aegis_ai.ml.rl")
+from typing import Any
 
 import gymnasium as gym
+import numpy as np
+import structlog
 from gymnasium import spaces
+
+logger = structlog.get_logger("aegis_ai.ml.rl")
 
 
 class DisasterResponseGymEnv(gym.Env):
@@ -46,7 +46,7 @@ class DisasterResponseGymEnv(gym.Env):
         self._casualties = 10.0
         self._resolved = False
 
-    def reset(self, seed: int | None = None, options: dict[str, Any] | None = None) -> Tuple[np.ndarray, dict[str, Any]]:
+    def reset(self, seed: int | None = None, options: dict[str, Any] | None = None) -> tuple[np.ndarray, dict[str, Any]]:
         if seed is not None:
             np.random.seed(seed)
         self.current_step = 0
@@ -67,7 +67,7 @@ class DisasterResponseGymEnv(gym.Env):
 
         return self._state, {"casualties": self._casualties}
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict[str, Any]]:
         self.current_step += 1
 
         # Action impact mapping:

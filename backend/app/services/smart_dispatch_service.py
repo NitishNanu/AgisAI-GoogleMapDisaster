@@ -10,18 +10,15 @@ Orchestrates multi-stage dispatch intelligence:
 
 import asyncio
 from typing import Any
+
 import structlog
 from sqlalchemy.orm import Session
 
-
-from app.core.common.exceptions import EntityNotFoundException, ServiceUnavailableException
-from app.modules.auth.models import User
+from app.core.common.exceptions import EntityNotFoundException
 from app.modules.incident.models import Incident
-from app.modules.resource.models import RescueTeam, ResourceAssignment
 from app.routing.osrm import OSRMService
 from app.services.geospatial_service import GeospatialService
 from app.services.response_scoring_service import ResponseScoringService
-
 
 logger = structlog.get_logger("aegis_ai.smart_dispatch")
 

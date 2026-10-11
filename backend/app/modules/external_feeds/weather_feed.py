@@ -7,7 +7,8 @@ Integrates Open-Meteo / Public Meteorological APIs:
 - Monitors extreme temperature (>42C -> HEATWAVE, <0C -> FREEZE)
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Any
+
 import httpx
 import structlog
 
@@ -26,7 +27,7 @@ class WeatherIntelligenceFeed:
         self,
         latitude: float = 19.0760,
         longitude: float = 72.8777,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Fetches live current weather and checks against operational hazard thresholds.
         """
@@ -44,7 +45,7 @@ class WeatherIntelligenceFeed:
                 if resp.status_code == 200:
                     data = resp.json()
                     current = data.get("current", {})
-                    
+
                     precip = float(current.get("precipitation", 0.0))
                     wind_speed = float(current.get("wind_speed_10m", 0.0))
                     wind_gusts = float(current.get("wind_gusts_10m", 0.0))

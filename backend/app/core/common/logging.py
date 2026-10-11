@@ -52,20 +52,6 @@ def setup_logging() -> None:
         structlog.processors.TimeStamper(fmt="iso", utc=True),
     ]
 
-    if settings.DEBUG:
-        # Human-readable colored output for local development
-        processors: list[structlog.types.Processor] = [
-            *shared_processors,
-            structlog.dev.ConsoleRenderer(),
-        ]
-    else:
-        # Machine-readable JSON for production log aggregators
-        processors = [
-            *shared_processors,
-            structlog.processors.dict_tracebacks,
-            structlog.processors.JSONRenderer(),
-        ]
-
     structlog.configure(
         processors=[
             structlog.stdlib.filter_by_level,

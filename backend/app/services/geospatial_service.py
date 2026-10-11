@@ -7,14 +7,13 @@ rescue team selection and distance filtering.
 
 import math
 from typing import Any
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.common.exceptions import EntityNotFoundException
-from app.modules.auth.models import User
 from app.modules.incident.models import Incident
 from app.modules.resource.models import RescueTeam
-
 
 
 def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

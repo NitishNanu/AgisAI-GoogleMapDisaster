@@ -274,18 +274,18 @@ async def nlp_triage(
     payload: dict,
     _: User = Depends(get_current_active_user),
 ) -> ApiResponse[dict]:
-    from app.modules.ai.nlp.ollama_extractor import ollama_disaster_extractor
     from app.modules.ai.nlp.geocoder import disaster_geocoder
-    
+    from app.modules.ai.nlp.ollama_extractor import ollama_disaster_extractor
+
     text = payload.get("text", "")
     extraction = await ollama_disaster_extractor.extract_and_validate(text)
-    
+
     geocoded_locations = []
     for loc_cand in extraction.get("data", {}).get("location_candidates", []):
         geo = await disaster_geocoder.geocode_candidate(loc_cand.get("text", ""))
         if geo:
             geocoded_locations.append(geo)
-            
+
     result = {
         **extraction,
         "geocoded_candidates": geocoded_locations,
@@ -304,7 +304,7 @@ async def vision_triage(
     _: User = Depends(get_current_active_user),
 ) -> ApiResponse[dict]:
     from app.modules.ai.vision.service import cv_analyzer
-    
+
     image_name = payload.get("filename", "incident_image.jpg")
     analysis = cv_analyzer.analyze_image_bytes(image_data=b"synthetic_bytes", filename=image_name)
     return ApiResponse.ok(data=analysis, message="Computer vision image triage completed.")

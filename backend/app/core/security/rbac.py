@@ -1,18 +1,18 @@
-from typing import List, Callable, Dict, Any
-from fastapi import Depends, HTTPException, status
+from typing import Any
+
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from app.core.security import decode_token
 from app.core.common.exceptions import ForbiddenException, UnauthorizedException
-
+from app.core.security import decode_token
 from app.database.session import get_db
 from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 
-def get_current_user_payload(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
+def get_current_user_payload(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
     """
     Extracts and validates token payload from Bearer header.
     """
@@ -22,7 +22,7 @@ def get_current_user_payload(token: str = Depends(oauth2_scheme)) -> Dict[str, A
 
 
 def get_current_user(
-    payload: Dict[str, Any] = Depends(get_current_user_payload),
+    payload: dict[str, Any] = Depends(get_current_user_payload),
     db: Session = Depends(get_db)
 ) -> User:
     """
@@ -44,7 +44,7 @@ class RequireRole:
     RBAC Authorization Dependency Guard.
     Usage: Depends(RequireRole(["ADMIN", "DISPATCHER", "COMMANDER"]))
     """
-    def __init__(self, allowed_roles: List[str]) -> None:
+    def __init__(self, allowed_roles: list[str]) -> None:
         self.allowed_roles = [role.upper() for role in allowed_roles]
 
     def __call__(self, current_user: User = Depends(get_current_user)) -> User:

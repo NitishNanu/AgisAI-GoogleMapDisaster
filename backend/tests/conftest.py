@@ -18,12 +18,11 @@ Design:
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event, text
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.types import String
 
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 
 @compiles(JSONB, "sqlite")
 def compile_jsonb_sqlite(type_, compiler, **kw):
@@ -36,8 +35,8 @@ def compile_array_sqlite(type_, compiler, **kw):
 
 
 try:
-    from geoalchemy2.types import Geography, Geometry
     import geoalchemy2.admin.dialects.sqlite as sqlite_admin
+    from geoalchemy2.types import Geography, Geometry
 
     @compiles(Geometry, "sqlite")
     @compiles(Geography, "sqlite")
@@ -108,21 +107,19 @@ def create_test_tables():
     are mapped to TEXT for testing purposes via the SQLite dialect.
     """
     # Import models to register with metadata
-    import app.modules.auth.models  # noqa: F401
-    import app.modules.notification.models  # noqa: F401
-    import app.modules.incident.models  # noqa: F401
-    import app.modules.resource.models  # noqa: F401
-    import app.modules.hospital.models  # noqa: F401
     import app.modules.ai.models  # noqa: F401
-    import app.modules.prediction.models  # noqa: F401
-    import app.modules.scenario.models  # noqa: F401
-
     import app.modules.audit.models  # noqa: F401
+    import app.modules.auth.models  # noqa: F401
+    import app.modules.hospital.models  # noqa: F401
+    import app.modules.incident.models  # noqa: F401
+    import app.modules.notification.models  # noqa: F401
+    import app.modules.prediction.models  # noqa: F401
+    import app.modules.resource.models  # noqa: F401
+    import app.modules.scenario.models  # noqa: F401
 
     Base.metadata.create_all(bind=test_engine)
 
     # Seed synthetic users for the JWT fixtures
-    from app.modules.auth.models import User
     with test_engine.begin() as conn:
         conn.execute(
             text(

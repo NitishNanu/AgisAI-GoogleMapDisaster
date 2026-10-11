@@ -6,7 +6,8 @@ Integrates USGS Real-time GeoJSON Earthquake API:
 - Maps epicenter, magnitude (M4.0+), depth, and tsunami flags.
 """
 
-from typing import Dict, List, Any
+from typing import Any
+
 import httpx
 import structlog
 
@@ -28,7 +29,7 @@ class SeismicIntelligenceFeed:
         max_lat: float = 30.0,
         min_lon: float = 65.0,
         max_lon: float = 90.0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Fetches live earthquakes and filters those within the specified geographic region.
         """

@@ -8,13 +8,16 @@ import copy
 import random
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
 
 import structlog
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from app.core.common.exceptions import ConflictException, EntityNotFoundException, ValidationException
+from app.core.common.exceptions import (
+    ConflictException,
+    EntityNotFoundException,
+    ValidationException,
+)
 from app.core.websocket.manager import ws_manager
 from app.modules.scenario.enums import ScenarioRunStatus, ScenarioStatus
 from app.modules.scenario.models import Scenario, ScenarioRun
@@ -24,7 +27,6 @@ from app.modules.scenario.schemas import (
     PresetResponse,
     ScenarioCreateRequest,
     ScenarioPreviewResponse,
-    ScenarioRunResponse,
     ScenarioUpdateRequest,
     ScenarioValidateResponse,
 )
@@ -52,7 +54,7 @@ class ScenarioService:
         return BaselineRiskScorer.calculate_preview(payload)
 
     @classmethod
-    def get_presets(cls) -> List[PresetResponse]:
+    def get_presets(cls) -> list[PresetResponse]:
         """Return standardized scenario presets."""
         return get_scenario_presets()
 
@@ -61,7 +63,7 @@ class ScenarioService:
         cls,
         db: Session,
         payload: ScenarioCreateRequest,
-        user_id: Optional[int] = None,
+        user_id: int | None = None,
     ) -> Scenario:
         """Persist a new disaster scenario blueprint."""
         val_res = cls.validate_scenario(payload)
@@ -120,12 +122,12 @@ class ScenarioService:
         db: Session,
         skip: int = 0,
         limit: int = 50,
-        status: Optional[str] = None,
-        disaster_type: Optional[str] = None,
-        severity: Optional[str] = None,
-        is_template: Optional[bool] = None,
-        search: Optional[str] = None,
-    ) -> Tuple[List[Scenario], int]:
+        status: str | None = None,
+        disaster_type: str | None = None,
+        severity: str | None = None,
+        is_template: bool | None = None,
+        search: str | None = None,
+    ) -> tuple[list[Scenario], int]:
         """Query scenarios with pagination and filtering."""
         query = select(Scenario).where(Scenario.status != ScenarioStatus.ARCHIVED.value)
 
@@ -164,7 +166,7 @@ class ScenarioService:
         db: Session,
         scenario_id: str,
         payload: ScenarioUpdateRequest,
-        user_id: Optional[int] = None,
+        user_id: int | None = None,
     ) -> Scenario:
         """Update scenario details (only permitted in DRAFT or READY state)."""
         scenario = cls.get_scenario(db, scenario_id)
@@ -211,7 +213,7 @@ class ScenarioService:
         return scenario
 
     @classmethod
-    def archive_scenario(cls, db: Session, scenario_id: str, user_id: Optional[int] = None) -> None:
+    def archive_scenario(cls, db: Session, scenario_id: str, user_id: int | None = None) -> None:
         """Soft-delete/archive a scenario."""
         scenario = cls.get_scenario(db, scenario_id)
         scenario.status = ScenarioStatus.ARCHIVED.value
@@ -223,8 +225,8 @@ class ScenarioService:
         cls,
         db: Session,
         scenario_id: str,
-        new_name: Optional[str] = None,
-        user_id: Optional[int] = None,
+        new_name: str | None = None,
+        user_id: int | None = None,
     ) -> Scenario:
         """Clone an existing scenario with a new UUID for What-If scenario branching."""
         original = cls.get_scenario(db, scenario_id)
@@ -272,7 +274,7 @@ class ScenarioService:
         cls,
         db: Session,
         scenario_id: str,
-        user_id: Optional[int] = None,
+        user_id: int | None = None,
     ) -> ScenarioRun:
         """
         Launch a scenario simulation run.
@@ -354,7 +356,7 @@ class ScenarioService:
         return run
 
     @classmethod
-    def get_scenario_runs(cls, db: Session, scenario_id: str) -> List[ScenarioRun]:
+    def get_scenario_runs(cls, db: Session, scenario_id: str) -> list[ScenarioRun]:
         """Fetch historical runs for a scenario."""
         runs = db.scalars(
             select(ScenarioRun)

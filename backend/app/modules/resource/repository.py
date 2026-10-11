@@ -132,7 +132,7 @@ class ResourceRepository:
     # -----------------------------------------------------------------------
     def get_assignment(self, assignment_id: int) -> ResourceAssignment | None:
         return self._db.query(ResourceAssignment).filter(ResourceAssignment.id == assignment_id).first()
-        
+
     def get_assignments_for_incident(self, incident_id: int) -> list[ResourceAssignment]:
         return self._db.query(ResourceAssignment).filter(ResourceAssignment.incident_id == incident_id).order_by(ResourceAssignment.created_at.desc()).all()
 

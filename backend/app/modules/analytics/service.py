@@ -17,10 +17,10 @@ from app.modules.analytics.schemas import (
     AnalyticsReportResponse,
     DashboardSummary,
     EmergencyAnalyticsSummary,
+    HospitalSummary,
     ResourceUtilizationReport,
     ShelterUtilizationSummary,
     TeamUtilizationSummary,
-    HospitalSummary,
 )
 from app.modules.hospital.models import Hospital
 from app.modules.incident.models import Incident
@@ -155,7 +155,6 @@ class AnalyticsService:
         Returns:
             The persisted AnalyticsReportResponse with its assigned ID.
         """
-        from sqlalchemy import func  # noqa: PLC0415
         from app.modules.resource.models import ResourceAssignment  # noqa: PLC0415
 
         repo = AnalyticsRepository(db)

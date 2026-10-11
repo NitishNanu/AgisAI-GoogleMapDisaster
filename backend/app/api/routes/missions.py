@@ -6,11 +6,13 @@ Provides Mission Control viewing and real-time tracking endpoints:
 """
 
 from typing import Any
+
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.core.common.response import ApiResponse
 from app.core.database.session import get_db
+from app.modules.ai.providers.ollama_provider import ollama_provider
 from app.services.mission_service import MissionService
 
 router = APIRouter(prefix="/missions", tags=["Mission Control"])
@@ -39,9 +41,6 @@ def get_missions(
         "data": missions,
     }
 
-from app.modules.ai.providers.ollama_provider import ollama_provider
-from fastapi import HTTPException
-from sqlalchemy import text
 
 @router.post("/{assignment_id}/sitrep")
 async def generate_sitrep(assignment_id: str, db: Session = Depends(get_db)):
@@ -58,7 +57,7 @@ async def generate_sitrep(assignment_id: str, db: Session = Depends(get_db)):
             "distance_remaining_km": 4.2,
             "elapsed_minutes": 12.5,
         }
-    
+
     elapsed_val = float(mission.get("elapsed_minutes") or 10.0)
 
     # AI SITREP Call
@@ -74,9 +73,9 @@ async def generate_sitrep(assignment_id: str, db: Session = Depends(get_db)):
         "expected_impact": {"casualties_treated": 2},
         "alternatives": []
     }
-    
+
     briefing = await ollama_provider.generate_briefing(decision_data)
-    
+
     return {
         "success": True,
         "incident_title": mission.get("incident_title"),
@@ -97,36 +96,36 @@ async def generate_sitrep(assignment_id: str, db: Session = Depends(get_db)):
 def get_medevac_plan(assignment_id: str, db: Session = Depends(get_db)):
     # Execute PostGIS query to find the nearest hospital with available ICU beds within 50km
     query = text("""
-        SELECT 
-            id, 
-            name, 
-            trauma_level, 
-            available_beds, 
+        SELECT
+            id,
+            name,
+            trauma_level,
+            available_beds,
             available_icu_beds as icu_beds_available,
             ST_Distance(
-                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography, 
+                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
                 location::geography
             ) / 1000.0 as distance_km
         FROM hospitals
-        WHERE is_operational = true 
+        WHERE is_operational = true
           AND available_icu_beds > 0
           AND ST_DWithin(
-              ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography, 
-              location::geography, 
+              ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+              location::geography,
               50000
           )
         ORDER BY distance_km ASC
         LIMIT 3
     """)
-    
+
     # Mock incident coordinates for routing
-    incident_lon, incident_lat = 76.7794, 30.7333 
-    
+    incident_lon, incident_lat = 76.7794, 30.7333
+
     result = db.execute(query, {"lon": incident_lon, "lat": incident_lat}).fetchall()
-    
+
     if not result:
         return {"success": False, "message": "No hospitals with ICU beds found within 50km."}
-    
+
     # OSRM Route ETA calculation (simulated here)
     hospitals = []
     for r in result:
@@ -139,14 +138,15 @@ def get_medevac_plan(assignment_id: str, db: Session = Depends(get_db)):
             "distance_km": round(r.distance_km, 2),
             "eta_minutes": round((r.distance_km / 50.0) * 60, 1) # assuming 50km/h avg speed
         })
-        
+
     primary = hospitals[0]
     alternatives = hospitals[1:]
 
     # Notify via WebSocket about the Medevac route
     try:
-        from app.core.websocket.manager import ws_manager
         import asyncio
+
+        from app.core.websocket.manager import ws_manager
         asyncio.create_task(
             ws_manager.broadcast_to_channel("missions", "MEDEVAC_ROUTED", {
                 "assignment_id": assignment_id,

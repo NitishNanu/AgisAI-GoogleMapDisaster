@@ -11,7 +11,7 @@ Capabilities:
 
 import math
 from datetime import datetime, timezone
-from typing import Any
+
 import structlog
 from sqlalchemy.orm import Session
 
@@ -20,7 +20,6 @@ from app.modules.ai.agents.schemas import (
     HazardEnvelopeResponse,
     HazardZoneEnvelope,
     IncidentActionPlan,
-    IncidentTriageRequest,
     SecondaryCascadeRisk,
     TacticalObjective,
 )
@@ -189,7 +188,7 @@ class IncidentIntelligenceAgent(BaseAgent):
         """Calculates exact required response fleet sizing."""
         sev_factor = 3 if severity in ("CRITICAL", "SEVERE") else (2 if severity == "HIGH" else 1)
         ambulance_count = max(2, math.ceil(casualties / 4)) * sev_factor
-        
+
         matrix = {
             "AMBULANCE": min(12, ambulance_count),
             "FIRE_ENGINE": 2 * sev_factor if disaster_type in ("FIRE", "EXPLOSION", "GAS_LEAK") else 1,

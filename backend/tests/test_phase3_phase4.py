@@ -17,7 +17,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.common.sanitizer import sanitize_payload, sanitize_text
-from app.modules.audit.models import AuditLog
 from app.modules.audit.service import AuditService
 from app.modules.ml_intelligence.commander_rag import CommanderRAGAssistant
 from app.modules.ml_intelligence.lstm_forecaster import LSTMDisasterForecaster

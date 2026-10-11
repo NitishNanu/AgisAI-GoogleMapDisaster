@@ -8,12 +8,13 @@ Exposes specialized Autonomous Domain Agents:
 """
 
 from typing import Any
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.common.response import ApiResponse
 from app.core.database.session import get_db
-from app.core.security.jwt import RequireRole, get_current_active_user
+from app.core.security.jwt import get_current_active_user
 from app.modules.ai.agents.incident_agent import IncidentIntelligenceAgent
 from app.modules.ai.agents.mission_agent import MissionOperationsAgent
 from app.modules.ai.agents.scenario_agent import ScenarioArchitectAgent
@@ -28,7 +29,6 @@ from app.modules.ai.agents.schemas import (
 )
 from app.modules.auth.models import User
 from app.modules.incident.models import Incident
-from app.modules.scenario.models import Scenario
 
 router = APIRouter(prefix="/agents", tags=["AI Domain Agents"])
 

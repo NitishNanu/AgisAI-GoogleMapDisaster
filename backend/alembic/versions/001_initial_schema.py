@@ -19,9 +19,10 @@ PostGIS extension must be enabled before running this migration:
     CREATE EXTENSION IF NOT EXISTS postgis;
 """
 
-from alembic import op
 import sqlalchemy as sa
 from geoalchemy2 import Geometry
+
+from alembic import op
 
 revision = "001_initial_schema"
 down_revision = None

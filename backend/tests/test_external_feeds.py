@@ -2,10 +2,10 @@
 Tests for External Third-Party Disaster Intelligence Feeds (Weather, USGS Earthquakes, News Wires).
 """
 
-import pytest
 import asyncio
-from app.modules.external_feeds.service import feeds_service
+
 from app.modules.external_feeds.news_feed import emergency_news_feed
+from app.modules.external_feeds.service import feeds_service
 
 
 def test_configured_sources_list():

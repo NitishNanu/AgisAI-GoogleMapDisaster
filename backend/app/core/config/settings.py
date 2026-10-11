@@ -5,7 +5,6 @@ Uses Pydantic v2 BaseSettings for strict, typed environment variable loading.
 All settings are validated at startup — missing required vars raise immediately.
 """
 
-from typing import List
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -98,7 +97,7 @@ class AppSettings(BaseSettings):
     # ----------------------------------------------------------------
     # CORS Configuration
     # ----------------------------------------------------------------
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
@@ -121,7 +120,7 @@ class AppSettings(BaseSettings):
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
-    def parse_cors_origins(cls, v: object) -> List[str]:
+    def parse_cors_origins(cls, v: object) -> list[str]:
         """Parse CORS origins from comma-separated string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]

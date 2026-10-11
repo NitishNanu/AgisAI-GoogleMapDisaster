@@ -253,6 +253,7 @@ def export_incidents_csv(
 ):
     """Export all incidents in CSV format."""
     from fastapi.responses import Response  # noqa: PLC0415
+
     from app.modules.analytics.reports_engine import ReportsEngine  # noqa: PLC0415
 
     csv_data = ReportsEngine.export_incidents_csv(db)

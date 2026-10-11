@@ -2,13 +2,14 @@ import csv
 import io
 from datetime import datetime, timezone
 from typing import Any
-from sqlalchemy.orm import Session
+
 import structlog
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.modules.hospital.models import Hospital
 from app.modules.incident.models import Incident
-from app.modules.resource.models import RescueTeam, ResourceAssignment
+from app.modules.resource.models import ResourceAssignment
 
 logger = structlog.get_logger("aegis_ai.analytics.reports_engine")
 

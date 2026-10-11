@@ -8,12 +8,16 @@ timestamp recording, team release, and disaster status synchronization.
 import json
 from datetime import datetime, timezone
 from typing import Any
+
 import structlog
 from sqlalchemy.orm import Session
 
-from app.core.common.exceptions import ConflictException, EntityNotFoundException, ValidationException
+from app.core.common.exceptions import (
+    ConflictException,
+    EntityNotFoundException,
+    ValidationException,
+)
 from app.modules.incident.models import Incident
-from app.modules.resource.enums import AssignmentStatus, TeamStatus
 from app.modules.resource.models import RescueTeam, ResourceAssignment
 
 logger = structlog.get_logger("aegis_ai.assignment_service")
@@ -184,7 +188,7 @@ class AssignmentService:
         allowed = ALLOWED_TRANSITIONS.get(current_status, set())
         if target_status not in allowed:
             raise ValidationException(
-                f"Invalid mission status transition: '{current_status}' -> '{target_status}'. Allowed transitions: {sorted(list(allowed)) or 'None (terminal state)'}"
+                f"Invalid mission status transition: '{current_status}' -> '{target_status}'. Allowed transitions: {sorted(allowed) or 'None (terminal state)'}"
             )
 
         now = datetime.now(timezone.utc)

@@ -79,7 +79,7 @@ class HospitalService:
         if existing is None:
             raise EntityNotFoundException("Hospital", hospital_id)
 
-        updates = {k: v for k, v in payload.model_dump(exclude_none=True).items()}
+        updates = payload.model_dump(exclude_none=True)
 
         # Validate bed counts if both are being updated
         final_beds = updates.get("total_beds", existing.total_beds)

@@ -13,9 +13,7 @@ Test groups:
   - Analytics dashboard
 """
 
-import pytest
 from fastapi.testclient import TestClient
-
 
 # --- Root Endpoint ------------------------------------------------------------
 

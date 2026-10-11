@@ -5,12 +5,10 @@ Python 3.10 compatible.
 
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy import (
     Boolean,
-    CheckConstraint,
-    Column,
     DateTime,
     Float,
     ForeignKey,
@@ -51,7 +49,7 @@ class Scenario(Base, TimestampMixin):
     )
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     status: Mapped[str] = mapped_column(
         String(30),
@@ -59,7 +57,7 @@ class Scenario(Base, TimestampMixin):
         nullable=False,
     )
 
-    created_by: Mapped[Optional[int]] = mapped_column(
+    created_by: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
@@ -78,21 +76,21 @@ class Scenario(Base, TimestampMixin):
     random_seed: Mapped[int] = mapped_column(Integer, default=42, nullable=False)
 
     # Structured JSONB sub-configurations
-    disaster_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    environment_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    population_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    resource_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    hospital_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    shelter_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    infrastructure_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    simulation_config: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    disaster_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    environment_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    population_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    resource_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    hospital_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    shelter_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    infrastructure_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    simulation_config: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
 
     is_template: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     simulation_engine_version: Mapped[str] = mapped_column(String(20), default="2.0.0", nullable=False)
     scenario_schema_version: Mapped[str] = mapped_column(String(20), default="1.0.0", nullable=False)
 
     # Relationships
-    runs: Mapped[List["ScenarioRun"]] = relationship(
+    runs: Mapped[list["ScenarioRun"]] = relationship(
         "ScenarioRun",
         back_populates="scenario",
         cascade="all, delete-orphan",
@@ -137,11 +135,11 @@ class ScenarioRun(Base):
     simulation_engine_version: Mapped[str] = mapped_column(String(20), default="2.0.0", nullable=False)
 
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    initial_state_snapshot: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    final_state_snapshot: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
-    metrics: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    initial_state_snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    final_state_snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 

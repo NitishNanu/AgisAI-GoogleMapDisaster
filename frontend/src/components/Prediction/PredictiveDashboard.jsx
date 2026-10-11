@@ -152,7 +152,7 @@ export default function PredictiveDashboard({ onSelectIncident, simulationId }) 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [lastFetched, setLastFetched] = useState(Date.now());
+  const [lastFetched, setLastFetched] = useState(() => Date.now());
   const [secondsAgo, setSecondsAgo] = useState(0);
   const [selectedHorizon, setSelectedHorizon] = useState(30);
   const [alertFilter, setAlertFilter] = useState('ALL');

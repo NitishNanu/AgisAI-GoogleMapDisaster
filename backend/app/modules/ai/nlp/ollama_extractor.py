@@ -11,13 +11,14 @@ Extracts disaster report metadata with strict schema validation and fallback:
 """
 
 import json
-from typing import Dict, Any, Optional
+from typing import Any
+
 import structlog
 from pydantic import BaseModel, Field
 
-from app.modules.ai.providers.ollama_provider import ollama_provider
 from app.modules.ai.nlp.classifier import disaster_nlp_classifier
 from app.modules.ai.nlp.extractor import emergency_entity_extractor
+from app.modules.ai.providers.ollama_provider import ollama_provider
 
 logger = structlog.get_logger("aegis_ai.nlp.ollama_extractor")
 
@@ -36,7 +37,7 @@ class OllamaDisasterExtractor:
     """
 
     @staticmethod
-    async def extract_and_validate(text: str) -> Dict[str, Any]:
+    async def extract_and_validate(text: str) -> dict[str, Any]:
         """
         Attempts structured JSON extraction via Ollama, falling back to rule-based NLP if Ollama is unavailable.
         """

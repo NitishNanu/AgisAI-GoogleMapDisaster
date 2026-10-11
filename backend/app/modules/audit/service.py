@@ -5,6 +5,7 @@ Provides logging and retrieval utilities for audit records.
 """
 
 from typing import Any
+
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 

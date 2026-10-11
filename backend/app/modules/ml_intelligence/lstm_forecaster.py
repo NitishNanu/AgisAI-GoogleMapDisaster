@@ -7,9 +7,9 @@ Implements deep recurrent neural network sequence modeling for disaster progress
 - Generates 95% Bayesian-approximate confidence intervals for hospital ER saturation.
 """
 
-from typing import Any
 import math
-import numpy as np
+from typing import Any
+
 import structlog
 
 logger = structlog.get_logger("aegis_ai.ml.lstm")

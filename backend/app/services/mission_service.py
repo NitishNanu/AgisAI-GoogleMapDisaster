@@ -7,6 +7,7 @@ RescueTeam, routing geometry, and ETA details.
 
 import json
 from typing import Any
+
 from sqlalchemy.orm import Session
 
 from app.modules.incident.models import Incident

@@ -4,7 +4,6 @@ Verifies ScenarioValidator, BaselineRiskScorer, Presets, and domain lifecycle.
 Python 3.10 compatible.
 """
 
-import pytest
 from app.modules.scenario.enums import DisasterSeverity, RiskLevel, WeatherPreset
 from app.modules.scenario.presets import get_scenario_presets
 from app.modules.scenario.risk_scorer import BaselineRiskScorer

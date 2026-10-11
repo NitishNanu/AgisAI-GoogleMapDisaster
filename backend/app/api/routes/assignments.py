@@ -9,8 +9,8 @@ Provides dispatching and mission lifecycle management endpoints:
   PUT  /api/v1/assignments/{id}         — General assignment update
 """
 
-from typing import Any
 import json
+
 from fastapi import APIRouter, Depends, Header, Query, status
 from sqlalchemy.orm import Session
 
@@ -214,7 +214,7 @@ def update_assignment(
     _: User = Depends(RequireRole(["ADMIN", "COMMANDER", "DISPATCHER", "RESPONDER"])),
 ) -> ApiResponse[AssignmentResponse]:
     target_status = payload.status.value if payload.status and hasattr(payload.status, "value") else (str(payload.status) if payload.status else None)
-    
+
     if target_status:
         assignment = AssignmentService.update_assignment_status(
             db=db,

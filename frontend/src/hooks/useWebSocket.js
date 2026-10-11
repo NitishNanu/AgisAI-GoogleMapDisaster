@@ -5,6 +5,7 @@ export function useWebSocket(url, token) {
     const [status, setStatus] = useState('DISCONNECTED');
     const wsRef = useRef(null);
     const reconnectAttempts = useRef(0);
+    const connectRef = useRef(null);
     const maxReconnectDelay = 30000;
 
     const connect = useCallback(() => {
@@ -40,7 +41,11 @@ export function useWebSocket(url, token) {
             // Exponential backoff
             const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), maxReconnectDelay);
             reconnectAttempts.current += 1;
-            setTimeout(connect, delay);
+            setTimeout(() => {
+                if (connectRef.current) {
+                    connectRef.current();
+                }
+            }, delay);
         };
 
         ws.onerror = (err) => {
@@ -48,6 +53,10 @@ export function useWebSocket(url, token) {
             ws.close();
         };
     }, [url, token]);
+
+    useEffect(() => {
+        connectRef.current = connect;
+    }, [connect]);
 
     useEffect(() => {
         connect();

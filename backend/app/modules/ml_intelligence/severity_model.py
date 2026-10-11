@@ -8,7 +8,6 @@ Provides real Machine Learning severity classification and confidence scoring:
 - Auto-trains and serializes a high-accuracy gradient-boosted tree model if no saved model exists.
 """
 
-import os
 from pathlib import Path
 from typing import Any
 

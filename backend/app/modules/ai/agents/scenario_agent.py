@@ -9,8 +9,8 @@ Capabilities:
 """
 
 import math
-from datetime import datetime, timezone
 from typing import Any
+
 import structlog
 
 from app.modules.ai.agents.base import BaseAgent
@@ -19,7 +19,6 @@ from app.modules.ai.agents.schemas import (
     ScenarioPromptGenerateRequest,
     ScenarioStressTestResult,
 )
-from app.modules.scenario.schemas import ScenarioCreateRequest, ScenarioCreate
 
 logger = structlog.get_logger("aegis_ai.agents.scenario")
 
@@ -193,7 +192,7 @@ class ScenarioArchitectAgent(BaseAgent):
 
         dtype = disaster.get("type", "EARTHQUAKE")
         sev = disaster.get("severity", "HIGH")
-        total_pop = scenario_config.get("population", {}).get("count", 50000)
+        _total_pop = scenario_config.get("population", {}).get("count", 50000)
 
         ambulances = resources.get("ambulances", 10)
         icu_beds = hospitals.get("icu_beds", 150)

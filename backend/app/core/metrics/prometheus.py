@@ -8,14 +8,12 @@ Exposes operational telemetry for Prometheus scraping at /metrics:
 - Emergency dispatches and allocations
 """
 
-from typing import Any
 
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
-    CollectorRegistry,
+    REGISTRY,
     Counter,
     Histogram,
-    REGISTRY,
     generate_latest,
 )
 

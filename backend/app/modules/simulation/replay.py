@@ -1,18 +1,11 @@
-import copy
 from collections import deque
 from datetime import datetime, timezone
-from typing import Any
+
 import structlog
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from app.modules.simulation.schemas import (
-    BuildingState,
-    CitizenState,
     DigitalTwinCityState,
-    RoadSegment,
-    SimulationEvent,
-    WeatherCondition,
-    TrafficCondition,
 )
 
 logger = structlog.get_logger("aegis_ai.simulation.replay")

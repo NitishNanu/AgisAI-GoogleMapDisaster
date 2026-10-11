@@ -9,10 +9,9 @@ Capabilities:
 - Tactical reinforcement and dynamic backup recommendations
 """
 
-import json
 import math
 from datetime import datetime, timezone
-from typing import Any
+
 import structlog
 from sqlalchemy.orm import Session
 
@@ -156,7 +155,7 @@ class MissionOperationsAgent(BaseAgent):
             # Bed availability weight: 40%, ICU weight: 30%, Proximity weight: 30%
             avail_beds = hosp.available_beds
             avail_icu = hosp.available_icu
-            
+
             bed_score = min(40.0, (avail_beds / 50.0) * 40.0)
             icu_score = min(30.0, (avail_icu / 10.0) * 30.0)
             dist_score = max(0.0, 30.0 - (dist_km * 2.0))

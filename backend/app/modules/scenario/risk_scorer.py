@@ -4,7 +4,7 @@ Transparent deterministic analytical model estimating casualty ranges, bed press
 Python 3.10 compatible.
 """
 
-from typing import List
+
 from app.modules.scenario.enums import DisasterSeverity, RiskLevel
 from app.modules.scenario.schemas import ScenarioCreateRequest, ScenarioPreviewResponse
 
@@ -81,7 +81,7 @@ class BaselineRiskScorer:
             risk_level = RiskLevel.LOW
 
         # Generate Explainable Risk Factors
-        risk_factors: List[str] = []
+        risk_factors: list[str] = []
         if sev_weight >= 0.7:
             risk_factors.append(f"Elevated hazard severity level ({disaster.severity.value})")
         if affected_pop > 10000:
@@ -95,7 +95,7 @@ class BaselineRiskScorer:
         if pop.vulnerable_percentage >= 15.0:
             risk_factors.append(f"High vulnerable demographic proportion ({pop.vulnerable_percentage:.0f}%)")
 
-        warnings: List[str] = []
+        warnings: list[str] = []
         if hospital_demand > hosp.total_beds:
             warnings.append(f"Hospital bed demand ({hospital_demand}) exceeds total regional capacity ({hosp.total_beds})!")
         if shelter_demand > shelter.capacity:

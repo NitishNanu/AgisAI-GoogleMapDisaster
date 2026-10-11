@@ -244,7 +244,7 @@ class GlobalAssignmentOptimizer:
             feasible.append((float(cost_matrix[r, c]), int(r), int(c)))
         feasible.sort()
 
-        for cost, r, c in feasible:
+        for _cost, r, c in feasible:
             if r in assigned_incidents or c in assigned_resources:
                 continue
             inc = incident_list[r]

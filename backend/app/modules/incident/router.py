@@ -49,7 +49,7 @@ async def report_incident(
     """
     incident = IncidentService.report_incident(db, payload, reporter_id=current_user.id)
     response_data = IncidentResponse.model_validate(incident)
-    
+
     # Broadcast to connected WebSocket clients
     try:
         await ws_manager.broadcast_to_channel(
@@ -289,14 +289,14 @@ async def auto_discover_incident(
 ) -> ApiResponse[dict]:
     text = payload.get("text", "")
     persist = bool(payload.get("persist", False))
-    
+
     result = await IncidentService.auto_discover_from_text(
         db=db,
         text=text,
         reporter_id=current_user.id,
         persist=persist,
     )
-    
+
     # Broadcast to WebSocket if persisted
     if persist and result.get("detected_disaster", {}).get("incident_id"):
         try:

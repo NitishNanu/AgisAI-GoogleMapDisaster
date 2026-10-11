@@ -3,7 +3,7 @@ AegisAI Scenario Module — Built-in Standardized Scenario Presets.
 Python 3.10 compatible.
 """
 
-from typing import List
+
 from app.modules.scenario.enums import DisasterSeverity, HospitalCapacityLevel, WeatherPreset
 from app.modules.scenario.schemas import (
     DisasterConfig,
@@ -19,7 +19,7 @@ from app.modules.scenario.schemas import (
 )
 
 
-def get_scenario_presets() -> List[PresetResponse]:
+def get_scenario_presets() -> list[PresetResponse]:
     """Return catalog of standardized, ready-to-run scenario blueprints."""
     return [
         PresetResponse(

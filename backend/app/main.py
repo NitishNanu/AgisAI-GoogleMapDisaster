@@ -2,13 +2,14 @@
 AegisAI Main Application Entrypoint.
 """
 
-from contextlib import asynccontextmanager
 import time
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.routing import Match
 
 from app.api.router import api_router
 from app.api.routes.websocket import router as websocket_router
@@ -53,8 +54,6 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
-
-from starlette.routing import Match
 
 # SlowAPI Rate Limiter
 app.state.limiter = limiter

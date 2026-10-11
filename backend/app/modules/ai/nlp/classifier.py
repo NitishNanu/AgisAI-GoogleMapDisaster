@@ -7,11 +7,9 @@ Provides:
   FLOOD, FIRE, EARTHQUAKE, LANDSLIDE, CYCLONE, BUILDING_COLLAPSE, ROAD_ACCIDENT, INDUSTRIAL_ACCIDENT, OTHER.
 """
 
-from typing import Dict, List, Tuple
-import numpy as np
+import structlog
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-import structlog
 
 logger = structlog.get_logger("aegis_ai.nlp.classifier")
 
@@ -77,7 +75,7 @@ class DisasterNLPClassifier:
         try:
             texts = [item[0] for item in DEFAULT_TRAINING_CORPUS]
             labels = [item[1] for item in DEFAULT_TRAINING_CORPUS]
-            
+
             X = self.vectorizer.fit_transform(texts)
             self.model.fit(X, labels)
             self.is_trained = True
@@ -85,10 +83,10 @@ class DisasterNLPClassifier:
         except Exception as e:
             logger.error("nlp_disaster_classifier_training_failed", error=str(e))
 
-    def predict(self, text: str) -> Dict[str, any]:
+    def predict(self, text: str) -> dict[str, any]:
         """
         Classifies emergency text report.
-        
+
         Returns:
             predicted_class (str)
             confidence (float: 0.0 to 1.0)
@@ -99,12 +97,12 @@ class DisasterNLPClassifier:
             return {
                 "predicted_class": "OTHER",
                 "confidence": 0.0,
-                "class_probabilities": {c: 0.0 for c in self.classes},
+                "class_probabilities": dict.fromkeys(self.classes, 0.0),
                 "keywords_detected": [],
             }
 
         cleaned_text = text.lower().strip()
-        
+
         if not self.is_trained:
             self._train_baseline()
 

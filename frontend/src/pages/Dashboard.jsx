@@ -132,7 +132,9 @@ function Dashboard() {
                 try {
                     const assignmentData = await getAssignments(token);
                     setAssignments(assignmentData || []);
-                } catch {}
+                } catch {
+                    setAssignments([]);
+                }
             }
 
             predictionService.getPredictiveDashboard()

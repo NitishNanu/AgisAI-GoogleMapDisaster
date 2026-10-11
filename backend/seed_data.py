@@ -14,7 +14,6 @@ IMPORTANT:
 import os
 import sys
 import traceback
-from datetime import datetime, timezone
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 
@@ -25,7 +24,7 @@ from app.modules.hospital.models import Hospital
 from app.modules.incident.enums import DisasterType, IncidentStatus, SeverityLevel
 from app.modules.incident.models import Incident
 from app.modules.notification.models import Alert
-from app.modules.resource.enums import AssignmentStatus, TeamStatus, VehicleType
+from app.modules.resource.enums import TeamStatus, VehicleType
 from app.modules.resource.models import RescueTeam, ResourceAssignment, Shelter
 
 try:

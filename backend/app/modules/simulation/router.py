@@ -21,11 +21,10 @@ from sqlalchemy.orm import Session
 
 from app.core.common.response import ApiResponse
 from app.core.database.session import get_db
-from app.core.security.jwt import RequireRole, get_current_active_user, get_optional_user
+from app.core.security.jwt import RequireRole, get_optional_user
 from app.modules.auth.models import User
 from app.modules.simulation.schemas import (
     BuildingState,
-    CitizenState,
     DigitalTwinCityState,
     SimulationActionRequest,
     SimulationConfig,
@@ -34,7 +33,6 @@ from app.modules.simulation.schemas import (
     SpawnIncidentRequest,
 )
 from app.modules.simulation.service import SimulationService
-from app.modules.simulation.engine import engine as twin_engine
 
 router = APIRouter(prefix="/simulation", tags=["Digital Twin Simulation"])
 

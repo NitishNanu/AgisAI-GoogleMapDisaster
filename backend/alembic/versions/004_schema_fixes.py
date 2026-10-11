@@ -16,8 +16,9 @@ TimeHorizonForecaster / StateAggregator that caused forecasts to use fabricated
 default constants instead of live DB values.
 """
 
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 
 revision = "004_schema_fixes"
 down_revision = "003_prediction_intelligence"

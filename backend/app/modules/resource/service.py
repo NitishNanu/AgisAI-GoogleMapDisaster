@@ -3,7 +3,11 @@
 import structlog
 from sqlalchemy.orm import Session
 
-from app.core.common.exceptions import ConflictException, EntityNotFoundException, ValidationException
+from app.core.common.exceptions import (
+    ConflictException,
+    EntityNotFoundException,
+    ValidationException,
+)
 from app.modules.resource.models import RescueTeam, ResourceAssignment, Shelter
 from app.modules.resource.repository import ResourceRepository
 from app.modules.resource.schemas import (
@@ -27,7 +31,7 @@ class ResourceService:
     @staticmethod
     def create_team(db: Session, payload: RescueTeamCreate) -> RescueTeam:
         repo = ResourceRepository(db)
-        
+
         # Check for unique team name
         existing, _ = repo.get_teams(limit=1000)
         if any(t.team_name == payload.team_name for t in existing):
@@ -92,9 +96,9 @@ class ResourceService:
         existing = repo.get_shelter(shelter_id)
         if not existing:
             raise EntityNotFoundException("Shelter", shelter_id)
-            
+
         updates = payload.model_dump(exclude_none=True)
-        
+
         new_cap = updates.get("capacity", existing.capacity)
         new_occ = updates.get("current_occupancy", existing.current_occupancy)
         if new_occ > new_cap:

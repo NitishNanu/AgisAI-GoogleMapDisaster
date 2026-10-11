@@ -1,12 +1,11 @@
 ﻿from geoalchemy2.elements import WKTElement
 
 from app.database.session import SessionLocal
-
-from app.models.user import User
 from app.models.disaster import Disaster
-from app.models.rescue_team import RescueTeam
 from app.models.hospital import Hospital
+from app.models.rescue_team import RescueTeam
 from app.models.shelter import Shelter
+from app.models.user import User
 
 
 def seed_database():

@@ -8,13 +8,12 @@ Endpoints:
 """
 
 from typing import Any
-from fastapi import APIRouter, Depends, Request, status
+
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
 
 from app.core.common.response import ApiResponse
 from app.core.common.sanitizer import sanitize_text
-from app.core.database.session import get_db
 from app.core.middleware.rate_limiter import limiter
 from app.core.security.jwt import RequireRole, get_current_active_user
 from app.modules.auth.models import User

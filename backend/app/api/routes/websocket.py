@@ -1,7 +1,8 @@
 import uuid
 from typing import Any
-from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+
 import structlog
+from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect
 from jose import JWTError
 
 from app.core.config.settings import settings
@@ -41,8 +42,6 @@ def _validate_ws_token(token: str | None) -> dict[str, Any] | None:
         return None
 
 
-from app.core.security import get_current_active_user
-from fastapi import Depends
 
 async def get_ws_user(websocket: WebSocket, token: str | None = Query(default=None)):
     payload = _validate_ws_token(token)
@@ -130,7 +129,7 @@ async def websocket_stream_endpoint(
                     await ws_manager.send_personal_message(assigned_client_id, {"event": "error", "message": "RBAC Denied"})
                     continue
                 # Launch logic
-                from app.modules.simulation.scheduler import scheduler, scheduled_tick
+                from app.modules.simulation.scheduler import scheduler
                 if not scheduler.running:
                     scheduler.start()
                 await ws_manager.send_personal_message(assigned_client_id, {"event": "simulation_launched"})

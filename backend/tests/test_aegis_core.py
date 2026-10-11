@@ -10,18 +10,16 @@ Tests the foundational layers of the platform:
   - PredictionService legacy spread model
 """
 
-import pytest
 
 from app.core.common.exceptions import (
+    ConflictException,
     EntityNotFoundException,
     ForbiddenException,
-    ConflictException,
     ValidationException,
 )
 from app.core.common.response import ApiResponse
 from app.core.config.settings import settings
 from app.core.security.jwt import create_access_token, create_refresh_token, decode_token
-
 
 # --- Settings ----------------------------------------------------------------
 
@@ -161,6 +159,7 @@ class TestDigitalTwinEngine:
 
     def test_tick_increments_count(self):
         import asyncio
+
         from app.modules.simulation.engine import engine
         before = engine.tick_count
         asyncio.run(engine.tick())
@@ -176,6 +175,7 @@ class TestDigitalTwinEngine:
 
     def test_event_log_populated_after_tick(self):
         import asyncio
+
         from app.modules.simulation.engine import engine
         asyncio.run(engine.tick())
         events = engine.get_event_log()

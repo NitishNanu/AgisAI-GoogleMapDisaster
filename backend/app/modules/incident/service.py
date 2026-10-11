@@ -345,8 +345,8 @@ class IncidentService:
         4. Calculates safe routes & response ETA.
         5. Optionally persists to DB & broadcasts via WebSockets.
         """
-        from app.modules.ai.nlp.ollama_extractor import ollama_disaster_extractor  # noqa: PLC0415
         from app.modules.ai.nlp.geocoder import disaster_geocoder  # noqa: PLC0415
+        from app.modules.ai.nlp.ollama_extractor import ollama_disaster_extractor  # noqa: PLC0415
         from app.modules.hospital.models import Hospital  # noqa: PLC0415
         from app.modules.resource.models import RescueTeam, Shelter  # noqa: PLC0415
         from app.routing.hazard_router import hazard_router  # noqa: PLC0415

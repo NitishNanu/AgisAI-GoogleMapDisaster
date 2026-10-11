@@ -7,8 +7,10 @@ Cuts through breaking emergency wires & RSS feeds:
 - Converts confirmed news alerts into disaster incident candidates.
 """
 
-from typing import Dict, List, Any
+from typing import Any
+
 import structlog
+
 from app.modules.ai.nlp.classifier import disaster_nlp_classifier
 from app.modules.ai.nlp.extractor import emergency_entity_extractor
 from app.modules.ai.nlp.geocoder import disaster_geocoder
@@ -42,8 +44,8 @@ class EmergencyNewsFeed:
 
     async def parse_news_items(
         self,
-        news_items: List[Dict[str, str]] | None = None,
-    ) -> List[Dict[str, Any]]:
+        news_items: list[dict[str, str]] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Parses list of headlines/news reports and runs full NLP triage.
         """
@@ -66,7 +68,7 @@ class EmergencyNewsFeed:
             entities = emergency_entity_extractor.extract_entities(headline)
             locations = entities.get("locations", [])
             loc_candidate = locations[0] if locations else "Sector 1"
-            
+
             geo = await disaster_geocoder.geocode_candidate(loc_candidate)
             lat = geo["latitude"] if geo else 19.0760
             lon = geo["longitude"] if geo else 72.8777

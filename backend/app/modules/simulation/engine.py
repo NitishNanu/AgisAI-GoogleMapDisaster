@@ -277,7 +277,7 @@ class DigitalTwinEngine:
 
     def get_snapshot(self) -> DigitalTwinCityState:
         """Construct and return current full city state snapshot."""
-        state_counts = {s: 0 for s in CitizenStatus}
+        state_counts = dict.fromkeys(CitizenStatus, 0)
         for c in self.citizens:
             state_counts[c.status] = state_counts.get(c.status, 0) + 1
 
@@ -329,7 +329,7 @@ class DigitalTwinEngine:
             self._spawn_random_incident()
 
         # Count citizen states
-        state_counts = {s: 0 for s in CitizenStatus}
+        state_counts = dict.fromkeys(CitizenStatus, 0)
         for c in self.citizens:
             state_counts[c.status] = state_counts.get(c.status, 0) + 1
 
@@ -381,7 +381,7 @@ class DigitalTwinEngine:
         # 3. Compute deltas and broadcast to WebSockets live stream
         try:
             from app.core.websocket.manager import ws_manager  # noqa: PLC0415
-            
+
             # Compute Deltas (only sending what changed)
             if not hasattr(self, '_last_state_cache'):
                 self._last_state_cache = {'citizens': {}, 'buildings': {}}

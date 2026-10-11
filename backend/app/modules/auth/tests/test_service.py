@@ -9,12 +9,12 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.core.common.exceptions import ConflictException, UnauthorizedException
 from app.core.database.base import Base
 from app.core.security.jwt import decode_token, verify_password
 from app.modules.auth.models import User  # noqa: F401 â€” ensures table is created
 from app.modules.auth.schemas import AuthRole, UserRegisterRequest
 from app.modules.auth.service import AuthService
-from app.core.common.exceptions import ConflictException, UnauthorizedException
 
 # ---------------------------------------------------------------------------
 # Test Database Setup

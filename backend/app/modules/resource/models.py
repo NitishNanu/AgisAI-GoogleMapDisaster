@@ -151,7 +151,7 @@ class ResourceAssignment(Base, TimestampMixin):
     estimated_arrival_minutes: Mapped[float | None] = mapped_column(Float, nullable=True)
     distance_km: Mapped[float | None] = mapped_column(Float, nullable=True)
     route_geometry: Mapped[str | None] = mapped_column(Text, nullable=True)
-    
+
     notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

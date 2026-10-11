@@ -18,14 +18,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.common.exceptions import ConflictException, ValidationException
-from app.modules.auth.models import User
-from app.modules.incident.enums import DisasterType, IncidentStatus, SeverityLevel
 from app.modules.incident.models import Incident
-from app.modules.resource.enums import AssignmentStatus, TeamStatus, VehicleType
-from app.modules.resource.models import RescueTeam, ResourceAssignment
+from app.modules.resource.enums import TeamStatus, VehicleType
+from app.modules.resource.models import RescueTeam
 from app.services.assignment_service import AssignmentService
 from app.services.geospatial_service import GeospatialService
-from app.services.mission_service import MissionService
 from app.services.response_scoring_service import ResponseScoringService
 from app.services.smart_dispatch_service import SmartDispatchService
 

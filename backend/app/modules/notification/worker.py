@@ -41,7 +41,7 @@ async def consume_events() -> None:
 
                 # Declare a queue specifically for notifications
                 queue = await channel.declare_queue("aegis_notifications_queue", durable=True)
-                
+
                 # Bind the queue to listen to incident events
                 await queue.bind(exchange, routing_key="incident.#")
 
@@ -79,11 +79,11 @@ async def _process_message(routing_key: str | None, body: bytes) -> None:
             # Create one for commanders
             payload.target_role = "COMMANDER"
             NotificationService.create_alert(db, payload)
-            
+
             # Create one for dispatchers
             payload.target_role = "DISPATCHER"
             NotificationService.create_alert(db, payload)
-            
+
     elif routing_key == "incident.status_changed":
         # Handle status change alerts
         pass

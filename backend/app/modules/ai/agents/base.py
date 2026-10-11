@@ -9,8 +9,8 @@ Provides:
 """
 
 import json
-import time
 from typing import Any, cast
+
 import httpx
 import structlog
 

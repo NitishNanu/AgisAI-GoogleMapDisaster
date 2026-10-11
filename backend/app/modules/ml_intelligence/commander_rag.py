@@ -9,7 +9,7 @@ Integrates vector-retrieval augmented generation (RAG) over Emergency Response S
 """
 
 from typing import Any
-import math
+
 import numpy as np
 import structlog
 
@@ -85,7 +85,7 @@ class CommanderRAGAssistant:
         for s in EMERGENCY_SOPS:
             words = (s["title"] + " " + s["content"]).lower().split()
             vocab.update(words)
-        self._vocab = sorted(list(vocab))
+        self._vocab = sorted(vocab)
         self._word_to_idx = {w: i for i, w in enumerate(self._vocab)}
 
         mat = np.zeros((len(EMERGENCY_SOPS), len(self._vocab)), dtype=np.float32)

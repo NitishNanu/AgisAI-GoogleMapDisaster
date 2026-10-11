@@ -31,10 +31,10 @@ class NotificationRepository:
                 (Alert.target_user_id.is_(None) & Alert.target_role.is_(None))
             )
         )
-        
+
         if unread_only:
             query = query.filter(Alert.is_read.is_(False))
-            
+
         total = query.count()
         alerts = query.order_by(Alert.created_at.desc()).offset(skip).limit(limit).all()
         return alerts, total
@@ -50,11 +50,11 @@ class NotificationRepository:
                 (Alert.target_user_id.is_(None) & Alert.target_role.is_(None))
             )
         ).all()
-        
+
         valid_ids = [a[0] for a in valid_alerts]
         if not valid_ids:
             return 0
-            
+
         updated = self._db.query(Alert).filter(Alert.id.in_(valid_ids)).update(
             {"is_read": True}, synchronize_session=False
         )

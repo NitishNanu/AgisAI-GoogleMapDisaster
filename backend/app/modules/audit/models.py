@@ -7,17 +7,16 @@ Persists comprehensive audit trail of critical operational actions:
 - System overrides and security events
 """
 
-from typing import Any
 from datetime import datetime, timezone
+from typing import Any
 
 from sqlalchemy import (
+    JSON,
     DateTime,
     ForeignKey,
     Index,
     Integer,
-    JSON,
     String,
-    Text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 

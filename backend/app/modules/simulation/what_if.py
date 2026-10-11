@@ -1,6 +1,6 @@
 import copy
 import random
-from typing import Any
+
 import structlog
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,6 @@ from app.modules.simulation.schemas import (
     CitizenStatus,
     RoadSegment,
     WeatherCondition,
-    TrafficCondition,
 )
 
 logger = structlog.get_logger("aegis_ai.simulation.what_if")

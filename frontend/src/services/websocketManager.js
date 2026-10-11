@@ -73,7 +73,7 @@ class WebSocketManager {
                 this.setStatus("ERROR");
             };
 
-            this.ws.onclose = (event) => {
+            this.ws.onclose = (_event) => {
                 this.stopHeartbeat();
                 this.ws = null;
 

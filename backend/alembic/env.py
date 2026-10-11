@@ -22,20 +22,20 @@ Usage:
 
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
+
+import app.modules.analytics.models  # noqa: F401
 
 # Load all models so their metadata is registered with Base before
 # Alembic reads Base.metadata for autogenerate.
 import app.modules.auth.models  # noqa: F401
-import app.modules.incident.models  # noqa: F401
 import app.modules.hospital.models  # noqa: F401
-import app.modules.resource.models  # noqa: F401
+import app.modules.incident.models  # noqa: F401
 import app.modules.notification.models  # noqa: F401
-import app.modules.analytics.models  # noqa: F401
-
-from app.core.database.base import Base
+import app.modules.resource.models  # noqa: F401
+from alembic import context
 from app.core.config.settings import settings
+from app.core.database.base import Base
 
 # Alembic Config object — provides access to alembic.ini values
 config = context.config

@@ -28,10 +28,10 @@ export const getRouteToRescueTeam = (disasterId, teamId) => incidentService.getR
 // MISSIONS & ASSIGNMENTS
 // ============================================================
 export const getMissions = (activeOnly) => missionService.getMissions(activeOnly);
-export const createAssignment = (disasterId, teamId, token, options = {}) => missionService.createAssignment(disasterId, teamId, options);
-export const getAssignments = (token, params = {}) => missionService.getAssignments(params);
-export const updateAssignmentStatus = (assignmentId, status, token) => missionService.updateAssignmentStatus(assignmentId, status);
-export const completeAssignment = (assignmentId, token) => missionService.updateAssignmentStatus(assignmentId, "COMPLETED");
+export const createAssignment = (disasterId, teamId, _token, options = {}) => missionService.createAssignment(disasterId, teamId, options);
+export const getAssignments = (_token, params = {}) => missionService.getAssignments(params);
+export const updateAssignmentStatus = (assignmentId, status, _token) => missionService.updateAssignmentStatus(assignmentId, status);
+export const completeAssignment = (assignmentId, _token) => missionService.updateAssignmentStatus(assignmentId, "COMPLETED");
 
 // ============================================================
 // HOSPITALS

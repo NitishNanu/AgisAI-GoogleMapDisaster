@@ -2,7 +2,6 @@
 Tests for NLP text classification, NER, Geocoding, Computer Vision, and Dynamic Routing.
 """
 
-import pytest
 from app.modules.ai.nlp.classifier import disaster_nlp_classifier
 from app.modules.ai.nlp.extractor import emergency_entity_extractor
 from app.modules.ai.nlp.geocoder import disaster_geocoder
@@ -53,7 +52,7 @@ def test_computer_vision_analyzer():
 def test_dynamic_hazard_router():
     hazard_router.clear_hazards()
     hazard_router.register_hazard(lat=19.08, lon=72.88, hazard_type="ROAD_BLOCK", radius_km=1.0)
-    
+
     route = hazard_router.calculate_safe_route(
         start_lat=19.07,
         start_lon=72.87,

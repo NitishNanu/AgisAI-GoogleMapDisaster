@@ -3,9 +3,12 @@
 import structlog
 from sqlalchemy.orm import Session
 
-from app.core.common.exceptions import ConflictException
 from app.modules.simulation.engine import engine
-from app.modules.simulation.schemas import SimulationActionRequest, SimulationConfig, SimulationStateResponse
+from app.modules.simulation.schemas import (
+    SimulationActionRequest,
+    SimulationConfig,
+    SimulationStateResponse,
+)
 
 logger = structlog.get_logger("aegis_ai.simulation")
 
@@ -35,7 +38,7 @@ class SimulationService:
     async def perform_action(action_req: SimulationActionRequest) -> SimulationStateResponse:
         """Execute a control action on the Digital Twin Engine."""
         action = action_req.action
-        
+
         if action in ("start", "resume"):
             engine.is_running = True
             logger.info("simulation_started")
@@ -48,7 +51,7 @@ class SimulationService:
         elif action == "reset":
             engine.reset()
             logger.info("simulation_reset")
-            
+
         return SimulationService.get_state()
 
     @staticmethod
@@ -66,10 +69,10 @@ class SimulationService:
         2. Registers the location in the engine's disaster proximity tracker
            so citizens and roads react on the next tick.
         """
+        from app.modules.incident.enums import DisasterType, SeverityLevel  # noqa: PLC0415
         from app.modules.incident.schemas import IncidentCreate  # noqa: PLC0415
         from app.modules.incident.service import IncidentService  # noqa: PLC0415
-        from app.modules.incident.enums import DisasterType, SeverityLevel  # noqa: PLC0415
-        
+
         payload = IncidentCreate(
             title=f"Simulated {incident_type} Event",
             description="Automatically spawned by the Digital Twin simulation engine.",
@@ -79,20 +82,20 @@ class SimulationService:
             longitude=longitude,
             affected_radius_meters=1000.0,
         )
-        
+
         # System user (ID 1) represents automated system actions
         incident = IncidentService.report_incident(db, payload, reporter_id=1)
-        
+
         # Register in the engine's proximity tracker for citizen/road simulation
         engine.force_add_disaster(lat=latitude, lon=longitude, severity=severity)
-        
+
         logger.info(
             "simulation_incident_spawned",
             incident_id=incident.id,
             type=incident_type,
             severity=severity,
         )
-        
+
         return {
             "status": "spawned",
             "incident_id": incident.id,

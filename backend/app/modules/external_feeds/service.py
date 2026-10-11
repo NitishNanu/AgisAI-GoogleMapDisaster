@@ -8,13 +8,14 @@ Aggregates:
 4. Satellite Wildfire Thermal Feeds (Simulated/NASA FIRMS)
 """
 
-from typing import Dict, List, Any
+from typing import Any
+
 import structlog
 from sqlalchemy.orm import Session
 
-from app.modules.external_feeds.weather_feed import weather_feed
-from app.modules.external_feeds.seismic_feed import seismic_feed
 from app.modules.external_feeds.news_feed import emergency_news_feed
+from app.modules.external_feeds.seismic_feed import seismic_feed
+from app.modules.external_feeds.weather_feed import weather_feed
 from app.modules.incident.service import IncidentService
 
 logger = structlog.get_logger("aegis_ai.feeds.service")
@@ -26,7 +27,7 @@ class ExternalFeedsAggregator:
     """
 
     @staticmethod
-    def get_configured_sources() -> List[Dict[str, Any]]:
+    def get_configured_sources() -> list[dict[str, Any]]:
         """Returns list of active third-party feeds and status."""
         return [
             {
@@ -67,7 +68,7 @@ class ExternalFeedsAggregator:
     async def poll_all_feeds(
         latitude: float = 19.0760,
         longitude: float = 72.8777,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Polls all active external feeds and returns detected anomalies.
         """
@@ -100,7 +101,7 @@ class ExternalFeedsAggregator:
         db: Session,
         reporter_id: int | None = None,
         persist: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Polls all third-party feeds and runs auto-discovery on each candidate.
         """
