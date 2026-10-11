@@ -378,27 +378,41 @@ class DigitalTwinEngine:
         except Exception:
             pass
 
-        # 3. Broadcast to WebSockets live stream — non-blocking
+        # 3. Compute deltas and broadcast to WebSockets live stream
         try:
             from app.core.websocket.manager import ws_manager  # noqa: PLC0415
-            summary_payload = {
+            
+            # Compute Deltas (only sending what changed)
+            if not hasattr(self, '_last_state_cache'):
+                self._last_state_cache = {'citizens': {}, 'buildings': {}}
+
+            changed_citizens = []
+            for c in self.citizens:
+                last_c = self._last_state_cache['citizens'].get(c.id)
+                if not last_c or last_c.status != c.status or last_c.latitude != c.latitude:
+                    changed_citizens.append(c.model_dump())
+                    self._last_state_cache['citizens'][c.id] = c.model_copy()
+
+            changed_buildings = []
+            for b in self.buildings:
+                last_b = self._last_state_cache['buildings'].get(b.id)
+                if not last_b or last_b.damage_percent != b.damage_percent or last_b.occupancy != b.occupancy:
+                    changed_buildings.append(b.model_dump())
+                    self._last_state_cache['buildings'][b.id] = b.model_copy()
+
+            delta_payload = {
                 "tick": self.tick_count,
-                "disasters_count": self.active_disasters_count,
-                "total_citizens": len(self.citizens),
-                "safe_citizens": state.safe_citizens,
-                "endangered_citizens": state.endangered_citizens,
-                "evacuating_citizens": state.evacuating_citizens,
-                "injured_citizens": state.injured_citizens,
-                "rescued_citizens": state.rescued_citizens,
                 "weather": self.weather.model_dump(),
                 "traffic": self.traffic.model_dump(),
+                "citizens": changed_citizens,
+                "buildings": changed_buildings,
                 "recent_events": [e.model_dump() for e in list(self._event_log)[-5:]],
             }
             asyncio.create_task(
-                ws_manager.broadcast_to_channel("simulation", "SIMULATION_TICK", summary_payload)
+                ws_manager.broadcast_to_channel("simulation", "SIMULATION_TICK_DELTA", delta_payload)
             )
-        except Exception:
-            pass
+        except Exception as ws_err:
+            logger.warning("websocket_broadcast_failed", error=str(ws_err))
 
         return state
 

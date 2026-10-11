@@ -11,7 +11,9 @@ import {
     Marker,
     Popup,
     Polyline,
-    Circle
+    Circle,
+    CircleMarker,
+    useMap
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -23,6 +25,21 @@ L.Icon.Default.mergeOptions({
     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
+
+// Map effects component to handle flyToBounds
+function MapEffects({ activeRoute }) {
+    const map = useMap();
+    
+    React.useEffect(() => {
+        if (activeRoute && activeRoute.geometry && activeRoute.geometry.coordinates.length > 0) {
+            const positions = activeRoute.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+            const bounds = L.latLngBounds(positions);
+            map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
+        }
+    }, [activeRoute, map]);
+    
+    return null;
+}
 
 // Custom DivIcons for high visual appeal
 const createCustomIcon = (emoji, bgClass = "bg-default") => {
@@ -196,7 +213,9 @@ export function DisasterMap({
                 center={defaultPosition}
                 zoom={12}
                 style={{ height: "100%", width: "100%" }}
+                preferCanvas={true} // ENABLES CANVAS RENDERING FOR VECTOR LAYERS
             >
+                <MapEffects activeRoute={activeRoute} />
                 <TileLayer
                     attribution="&copy; OpenStreetMap contributors"
                     url={
@@ -311,13 +330,19 @@ export function DisasterMap({
                 })}
 
                 {/* ================================================= */}
-                {/* DISASTERS / INCIDENTS */}
+                {/* DISASTERS / INCIDENTS (Canvas Layer via CircleMarker) */}
                 {/* ================================================= */}
                 {layers.disasters && disasters.map((disaster) => (
-                    <Marker
+                    <CircleMarker
                         key={`disaster-${disaster.id}`}
-                        position={[disaster.latitude, disaster.longitude]}
-                        icon={icons.disaster(disaster.severity)}
+                        center={[disaster.latitude, disaster.longitude]}
+                        radius={12}
+                        pathOptions={{
+                            color: disaster.severity === 'CRITICAL' ? '#dc2626' : '#ea580c',
+                            fillColor: disaster.severity === 'CRITICAL' ? '#dc2626' : '#ea580c',
+                            fillOpacity: 0.9,
+                            weight: 2
+                        }}
                         eventHandlers={{
                             click: () => onSelectIncident && onSelectIncident(disaster)
                         }}
@@ -333,7 +358,7 @@ export function DisasterMap({
                                 )}
                             </div>
                         </Popup>
-                    </Marker>
+                    </CircleMarker>
                 ))}
 
                 {/* ================================================= */}
@@ -367,26 +392,40 @@ export function DisasterMap({
                 })}
 
                 {/* ================================================= */}
-                {/* CITIZEN AGENTS OVERLAY */}
+                {/* CITIZEN AGENTS OVERLAY (Canvas Layer via CircleMarker) */}
                 {/* ================================================= */}
-                {layers.citizens && citizens.map((citizen) => (
-                    <Marker
-                        key={`citizen-${citizen.id}`}
-                        position={[citizen.latitude, citizen.longitude]}
-                        icon={createCitizenDot(citizen.status)}
-                    >
-                        <Popup>
-                            <div className="map-popup-card" style={{ minWidth: 160 }}>
-                                <h4>👤 Citizen Agent #{citizen.id}</h4>
-                                <p><strong>Age:</strong> {citizen.age}</p>
-                                <p><strong>Status:</strong> {citizen.status}</p>
-                                {citizen.needs_medical && (
-                                    <p><strong className="text-danger">⚠️ Medical Help Required</strong></p>
-                                )}
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
+                {layers.citizens && citizens.map((citizen) => {
+                    let color = "#22c55e"; // SAFE
+                    if (citizen.status === "ENDANGERED") color = "#eab308";
+                    if (citizen.status === "EVACUATING") color = "#f97316";
+                    if (citizen.status === "INJURED") color = "#ef4444";
+                    if (citizen.status === "RESCUED") color = "#38bdf8";
+
+                    return (
+                        <CircleMarker
+                            key={`citizen-${citizen.id}`}
+                            center={[citizen.latitude, citizen.longitude]}
+                            radius={4}
+                            pathOptions={{
+                                color: "#ffffff",
+                                fillColor: color,
+                                fillOpacity: 1,
+                                weight: 1
+                            }}
+                        >
+                            <Popup>
+                                <div className="map-popup-card" style={{ minWidth: 160 }}>
+                                    <h4>👤 Citizen Agent #{citizen.id}</h4>
+                                    <p><strong>Age:</strong> {citizen.age}</p>
+                                    <p><strong>Status:</strong> {citizen.status}</p>
+                                    {citizen.needs_medical && (
+                                        <p><strong className="text-danger">⚠️ Medical Help Required</strong></p>
+                                    )}
+                                </div>
+                            </Popup>
+                        </CircleMarker>
+                    );
+                })}
 
                 {/* ================================================= */}
                 {/* HOSPITALS */}
@@ -436,20 +475,26 @@ export function DisasterMap({
                 ))}
 
                 {/* ================================================= */}
-                {/* RESCUE TEAMS & FLEET */}
+                {/* RESCUE TEAMS & FLEET (Canvas Layer via CircleMarker) */}
                 {/* ================================================= */}
                 {layers.rescueTeams && rescueTeams.map((team) => {
                     const vType = team.vehicle_type?.toUpperCase() || "";
-                    let icon = icons.rescue;
-                    if (vType.includes("AMBULANCE") || vType.includes("MEDIC")) icon = icons.ambulance;
-                    else if (vType.includes("FIRE") || vType.includes("HAZMAT")) icon = icons.fireTruck;
-                    else if (vType.includes("POLICE")) icon = icons.police;
+                    let color = "#3b82f6"; // Default rescue
+                    if (vType.includes("AMBULANCE") || vType.includes("MEDIC")) color = "#ef4444";
+                    else if (vType.includes("FIRE") || vType.includes("HAZMAT")) color = "#f97316";
+                    else if (vType.includes("POLICE")) color = "#1d4ed8";
 
                     return (
-                        <Marker
+                        <CircleMarker
                             key={`team-${team.id}`}
-                            position={[team.latitude, team.longitude]}
-                            icon={icon}
+                            center={[team.latitude, team.longitude]}
+                            radius={10}
+                            pathOptions={{
+                                color: '#ffffff',
+                                fillColor: color,
+                                fillOpacity: 0.9,
+                                weight: 2
+                            }}
                             eventHandlers={{
                                 click: () => onSelectResource && onSelectResource(team)
                             }}
@@ -462,7 +507,7 @@ export function DisasterMap({
                                     <p><strong>Status:</strong> <span className={`badge-mini ${team.status?.toLowerCase()}`}>{team.status}</span></p>
                                 </div>
                             </Popup>
-                        </Marker>
+                        </CircleMarker>
                     );
                 })}
             </MapContainer>

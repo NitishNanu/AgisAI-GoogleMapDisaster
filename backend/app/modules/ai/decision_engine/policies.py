@@ -213,10 +213,10 @@ class WeightedDispatchPolicy:
 
 
 class OptimizationPolicy:
-    """OPTIMIZED Policy: Solves global multi-incident assignment using Kuhn-Munkres matching."""
+    """OPTIMIZED Policy: Solves global multi-incident assignment via scipy LSA matching."""
 
     policy_type = PolicyType.OPTIMIZED
-    version = "1.0.0"
+    version = "2.0.0-scipy"
 
     def __init__(self, candidate_generator: CandidateGenerator | None = None) -> None:
         self.candidate_generator = candidate_generator or CandidateGenerator()
@@ -241,10 +241,14 @@ class OptimizationPolicy:
             )
             candidates_by_incident[inc.incident_id] = cands
 
-        optimal_matches = GlobalAssignmentOptimizer.solve_optimal_assignment(
+        # Returns OptimizationResult — unpack .assignments
+        opt_result = GlobalAssignmentOptimizer.solve_optimal_assignment(
             incidents=state.incidents,
             candidates_by_incident=candidates_by_incident,
         )
+        optimal_matches = opt_result.assignments
+        policy_used = opt_result.policy_used
+        fallback_reason = opt_result.fallback_reason
 
         decisions: list[dict[str, Any]] = []
         for inc in state.incidents:
@@ -262,7 +266,11 @@ class OptimizationPolicy:
             )
 
             p_sev = inc.severity
-            note = f"[Optimized] Matched (Score: {selected.suitability:.2f}, Priority: {p_sev})."
+            note = (
+                f"[Optimized/{policy_used}] Matched "
+                f"(Score: {selected.suitability:.2f}, Priority: {p_sev})."
+                + (f" Fallback: {fallback_reason}" if fallback_reason else "")
+            )
             action = {
                 "incident_id": inc.incident_id,
                 "resource_id": selected.resource_id,
@@ -293,6 +301,8 @@ class OptimizationPolicy:
                     "status": DecisionStatus.REVIEW_REQUIRED.value,
                     "policy_name": self.policy_type.value,
                     "policy_version": self.version,
+                    "optimizer_policy_used": policy_used,
+                    "optimizer_fallback_reason": fallback_reason,
                 }
             )
 

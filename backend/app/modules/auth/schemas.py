@@ -1,4 +1,4 @@
-﻿"""
+"""
 AegisAI Auth Module â€” Pydantic v2 Schemas.
 
 All schemas use strict Pydantic v2 field validators for production-level
@@ -26,12 +26,15 @@ class AuthRole(str, Enum):
 # Request schemas
 # ---------------------------------------------------------------------------
 class UserRegisterRequest(BaseModel):
-    """Schema for user self-registration."""
+    """Schema for user self-registration.
+
+    NOTE: Role is NOT accepted here — all self-registrations create a CITIZEN.
+    Only an ADMIN may assign or change roles after account creation.
+    """
 
     name: str = Field(..., min_length=2, max_length=100, description="Full name")
     email: EmailStr = Field(..., description="Unique email address")
     password: str = Field(..., min_length=8, max_length=128, description="Password")
-    role: AuthRole = Field(default=AuthRole.CITIZEN, description="Platform role")
 
     @field_validator("name")
     @classmethod

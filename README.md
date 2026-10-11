@@ -1,4 +1,4 @@
-# 🛡️ AegisAI — Emergency Response & Digital Twin Platform
+# 🛡️ AegisAI — Emergency Response & Multi-Agent Digital Twin Platform
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.116.1-009688.svg?style=flat&logo=FastAPI&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.3.1-61DAFB.svg?style=flat&logo=React&logoColor=black)](https://reactjs.org)
@@ -7,7 +7,7 @@
 [![OSRM](https://img.shields.io/badge/OSRM-Routing-008080.svg?style=flat&logo=OpenStreetMap&logoColor=white)](https://project-osrm.org)
 [![Ollama](https://img.shields.io/badge/Ollama-Llama_3.2-black.svg?style=flat)](https://ollama.com)
 
-**AegisAI** is a mission-critical emergency response, resource allocation, and digital-twin disaster simulation platform. It integrates geospatial intelligence (PostGIS + OSRM), deterministic AI decision optimization (Kuhn-Munkres bipartite matching + multi-criteria scoring), Explainable AI (XAI) operational briefings (Ollama Llama 3.2), real-time mission tracking, multi-horizon predictive forecasting (+5m, +15m, +30m, +60m), and facility saturation monitoring into a unified command and control system.
+**AegisAI** is a mission-critical emergency response, resource allocation, and digital-twin disaster simulation platform, currently evolving into a **Multi-Agent System (MAS)**. It integrates geospatial intelligence (PostGIS + OSRM), deterministic AI decision optimization (Scipy Linear Sum Assignment + multi-criteria scoring), Explainable AI (XAI) operational briefings (Ollama Llama 3.2), multi-horizon predictive forecasting (+5m, +15m, +30m, +60m), and an upcoming coordinated multi-agent orchestration layer into a unified command and control system.
 
 ---
 
@@ -15,19 +15,24 @@
 
 | Priority / Module | Backend Status | Frontend Status | Overall Status | Notes & Capabilities |
 | :--- | :---: | :---: | :---: | :--- |
-| **Priority 1: Frontend ↔ Backend Integration** | ✅ Complete | ✅ Complete | **DONE** | Full JWT lifecycle, 6-role RBAC, AuthModal, REST endpoints, and WebSocket sync. |
+| **Priority 1: Core System & Integration** | ✅ Complete | ✅ Complete | **DONE** | Full JWT lifecycle, REST endpoints, and WebSocket sync. Currently implementing strict 6-role RBAC & Audit logging. |
 | **Priority 2: Digital Twin EOC UI** | ✅ Complete | ✅ Complete | **DONE** | Palantir-style EOC command center, real-time tick engine, map layers, live HUD, and event ring buffer. |
 | **Priority 3: Scenario Designer & Studio** | ✅ Complete | ✅ Complete | **DONE** | Disaster blueprint designer, multi-hazard presets, parameter overrides, and live injection. |
-| **Priority 4: AI Decision Intelligence Engine** | ✅ Complete | ✅ Complete | **DONE** | Global Kuhn-Munkres optimization, hard constraints, multi-criteria scoring, XAI briefings, human approval, and transaction-safe dispatch. |
-| **Priority 5: Predictive AI Dashboard** | ✅ Complete | ✅ Complete | **DONE** | Multi-horizon (+5m, +15m, +30m, +60m) forecasting for casualties, hospital ICU overload, fleet shortages, risk envelopes, and proactive alerts. |
-| **Incident Management** | ✅ Complete | ✅ Complete | **DONE** | Spatial indexing, severity tagging, interactive Leaflet map markers, and radius visualization. |
-| **Live OSRM Routing** | ✅ Complete | ✅ Complete | **DONE** | Turn-by-turn road network routing via OSRM with Haversine fallback; GeoJSON polyline rendering. |
-| **Mission Control Tracking** | ✅ Complete | ✅ Complete | **DONE** | State machine lifecycle (`ASSIGNED` ➔ `DISPATCHED` ➔ `EN_ROUTE` ➔ `ARRIVED` ➔ `COMPLETED`). |
-| **Hospitals & Medical Capacity** | ✅ Complete | ✅ Complete | **DONE** | Emergency ER capacity, total beds, ICU occupancy, operational status, proximity queries. |
-| **Shelters & Evacuation Centers** | ✅ Complete | ✅ Complete | **DONE** | Shelter capacity, current occupancy, supply tracking, pet friendliness, spatial proximity. |
-| **Predictive AI (Ollama LLM)** | ✅ Complete | ✅ Complete | **DONE** | Llama 3.2 casualty & spread forecasting + Explainable AI tactical briefings. |
-| **Analytics & System Health** | ✅ Complete | ✅ Complete | **DONE** | Policy benchmarking, KPI aggregation, health scoring, and What-If comparison. |
-| **RabbitMQ Event Bus** | ✅ Complete | N/A | **DONE** | Async event broker integration for background simulation and decision publishing. |
+| **Priority 4: AI Decision Engine** | 🔄 In Progress | ✅ Complete | **IN PROGRESS** | Global Scipy LSA optimization (replacing Kuhn-Munkres), hard constraints, multi-criteria scoring, transaction-safe dispatch. |
+| **Priority 5: Predictive AI Dashboard** | ✅ Complete | ✅ Complete | **DONE** | Multi-horizon (+5m, +15m, +30m, +60m) forecasting for casualties, hospital ICU overload, fleet shortages. |
+| **Priority 6: Multi-Agent System (NEW)** | ⏳ Pending | ⏳ Pending | **PENDING** | 8 coordinating AI agents (Orchestrator, Commander, Dispatcher, Medic, Responder, Intel, PublicInfo, ScenarioDirector). |
+| **Incident & Resource Management** | ✅ Complete | ✅ Complete | **DONE** | Spatial indexing, severity tagging, resource state machine (`ASSIGNED` ➔ `DISPATCHED` ➔ `EN_ROUTE` ➔ `ARRIVED`). |
+| **Hospitals & Shelters** | ✅ Complete | ✅ Complete | **DONE** | Facility capacity, ICU occupancy, supply tracking, spatial proximity. |
+
+---
+
+## 🤖 Priority 6: Multi-Agent System Architecture (Upcoming)
+
+The platform is transitioning to a **Multi-Agent System** where each operational role is paired with an AI agent. These agents coordinate through typed messages, share a global blackboard, and can operate under variable autonomy levels.
+
+- **Human-in-the-Loop:** Admins assign roles. Agents function under specific Autonomy levels (OFF, ADVISE, SUPERVISED, AUTONOMOUS).
+- **Core Agents:** Orchestrator (Coordinates), Commander (Strategic), Dispatcher (Tactical), Medic (Triage), Responder (Field Ops), Intel (Data), PublicInfo (Comms), ScenarioDirector (Simulations).
+- **Agent API & Event Bus:** Agents communicate via an in-process bus and Redis streams, interacting through a unified Agent API.
 
 ---
 
@@ -62,54 +67,24 @@ The **Predictive Intelligence Layer** translates live disaster telemetry and sim
               ┌──────────┴──────────┐
               ▼                     ▼
         REST API                WebSocket
-              │                     │
-              └──────────┬──────────┘
-                         ▼
-                 COMMAND DASHBOARD
 ```
-
-### Key Forecasting Domains:
-1. **Casualty Horizon Forecasting**: Mathematical logarithmic/exponential patient surge curves accounting for hazard velocity, weather severity multipliers, and active rescue team mitigation.
-2. **Hospital ER & ICU Saturation**: Projections of bed and ICU occupancy % across facilities, estimating exact expected overload timestamps (`expected_overload_minutes`).
-3. **Resource Demand & Fleet Shortages**: Real-time fleet deficit forecasting for Ambulances, Fire Engines, Rescue Boats, Police Patrols, and Drones.
-4. **Spatial Disaster Risk & Fire Spread Envelopes**: Multi-horizon concentric propagation envelopes (+0m, +5m, +15m, +30m, +60m) rendered dynamically on Leaflet maps.
-5. **Predictive Alerts HUD**: Proactive alerts for impending ICU saturation, resource deficits, and rapid hazard expansion with deduplication cooldowns and factual XAI explanations.
-6. **Prediction Records & Error Tracking**: Database-backed audit logging (`prediction_records`) for tracking actual observed outcomes vs forecasts (MAE / MAPE accuracy evaluation).
 
 ---
 
 ## 🧠 Priority 4: AI Decision Intelligence Engine
 
-The **AI Decision Engine** determines the mathematically optimal emergency response action given the disaster state, available resources, hospital capacities, weather, and road conditions.
+The **AI Decision Engine** determines the mathematically optimal emergency response action given the disaster state, available resources, hospital capacities, weather, and road conditions. It uses `scipy.optimize.linear_sum_assignment` for global cost optimization.
 
 ### Architectural Pipeline
 ```text
        ┌───────────────────────────────┐
        │   Digital Twin / DB State     │
-       │ (Incidents, Units, Hospitals) │
-       └───────────────┬───────────────┘
-                       │
-                       ▼
-       ┌───────────────────────────────┐
-       │   AI State Aggregator (DTO)   │
-       └───────────────┬───────────────┘
-                       │
-                       ▼
-       ┌───────────────────────────────┐
-       │      Prediction Layer         │
-       │ (Spread, Casualties, Demand)  │
        └───────────────┬───────────────┘
                        │
                        ▼
        ┌───────────────────────────────┐
        │     Candidate Generator       │
        │  (Route & ETA via OSRM)       │
-       └───────────────┬───────────────┘
-                       │
-                       ▼
-       ┌───────────────────────────────┐
-       │     Constraint Engine         │
-       │ (Hard Constraints / Filters)  │
        └───────────────┬───────────────┘
                        │
                        ▼
@@ -126,19 +101,7 @@ The **AI Decision Engine** determines the mathematically optimal emergency respo
                        │
                        ▼
        ┌───────────────────────────────┐
-       │   Human Commander Approval    │
-       │ (Approve / Reject / Modify)   │
-       └───────────────┬───────────────┘
-                       │
-                       ▼
-       ┌───────────────────────────────┐
        │   Transaction-Safe Execution  │
-       │ (AssignmentService + Locking) │
-       └───────────────┬───────────────┘
-                       │
-                       ▼
-       ┌───────────────────────────────┐
-       │ Real-Time WebSocket & Monitor │
        └───────────────────────────────┘
 ```
 
@@ -148,74 +111,12 @@ The **AI Decision Engine** determines the mathematically optimal emergency respo
 
 ### Core Technologies:
 - **Backend Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python 3.10 compatible) with Pydantic v2 and SQLAlchemy 2.0.
-- **Database**: PostgreSQL 15 + [PostGIS](https://postgis.net/) Extension (`ST_DWithin`, `ST_Distance`).
-- **Optimization & Math**: NumPy vectorized Kuhn-Munkres bipartite matching solver.
+- **Database**: PostgreSQL 15 + [PostGIS](https://postgis.net/) Extension.
+- **Optimization & Math**: `scipy.optimize` LSA matching solver.
 - **Routing Engine**: [OSRM](https://project-osrm.org/) API with automatic road-factored Haversine fallback.
-- **AI / LLM Engine**: [Ollama](https://ollama.com/) running `llama3.2:3b` for operational briefings.
-- **Frontend**: [React 18/19](https://reactjs.org/), [Vite](https://vitejs.dev/), [Leaflet](https://leafletjs.com/), Custom responsive SVG charts & Glassmorphism Design System.
-- **Task Scheduling**: APScheduler for Digital Twin simulation ticks.
-- **Caching & Messaging**: Redis 7 and RabbitMQ 3.
-
----
-
-## 📂 Project Structure
-
-```text
-GoogleMapsDisaster/
-├── backend/
-│   ├── alembic/
-│   │   └── versions/
-│   │       ├── 001_initial_schema.py           # Core tables migration
-│   │       ├── 002_ai_decision_engine.py       # AI decisions, candidates, feedback, events
-│   │       └── 003_prediction_intelligence.py   # Prediction records and forecast history
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── router.py                       # Aggregated API router (includes /predictions & /ai)
-│   │   │   └── routes/                         # Domain route handlers
-│   │   ├── core/
-│   │   │   ├── config/settings.py              # Pydantic v2 application configuration
-│   │   │   ├── database/session.py             # SQLAlchemy engine & session maker
-│   │   │   ├── middleware/                     # Error handling & rate limiting
-│   │   │   ├── security/jwt.py                 # JWT token lifecycle & RBAC
-│   │   │   └── websocket/manager.py            # Live WebSocket connection manager
-│   │   ├── modules/
-│   │   │   ├── prediction/                     # Priority 5: Predictive AI Dashboard & Forecaster
-│   │   │   │   ├── forecaster.py               # TimeHorizonForecaster (+5m, +15m, +30m, +60m)
-│   │   │   │   ├── alerts.py                   # PredictiveAlertEngine with deduplication & XAI
-│   │   │   │   ├── models.py                   # PredictionRecord ORM entity
-│   │   │   │   ├── schemas.py, service.py, router.py, ai_client.py
-│   │   │   │   └── tests/                      # Forecaster, alert, and service unit tests
-│   │   │   ├── ai/                             # Priority 4: AI Decision Intelligence Layer
-│   │   │   ├── analytics/                      # KPI aggregation & health reports
-│   │   │   ├── auth/                           # Authentication & user management
-│   │   │   ├── hospital/                       # Hospital facilities & bed/ICU tracking
-│   │   │   ├── incident/                       # Incident management & spatial query service
-│   │   │   ├── resource/                       # Rescue units, shelters & assignments
-│   │   │   ├── scenario/                       # Scenario designer studio
-│   │   │   └── simulation/                     # Digital Twin simulator & What-If sandbox
-│   │   ├── routing/osrm.py                     # OSRM road routing client
-│   │   └── services/assignment_service.py      # Transaction-safe dispatch with SELECT FOR UPDATE
-│   ├── seed.py                                 # Master database seeding script
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Prediction/
-│   │   │   │   └── PredictiveDashboard.jsx     # Command-Center Forecasting HUD & SVG Charts
-│   │   │   ├── Map/DisasterMap.jsx             # Leaflet Multi-Layer Map with hazard envelopes
-│   │   │   ├── Layout/, Disaster/, Scenario/, Simulation/
-│   │   ├── pages/Dashboard.jsx                 # Unified EOC Command Dashboard
-│   │   ├── services/
-│   │   │   ├── predictionService.js            # Frontend client for predictive endpoints
-│   │   │   ├── aiDecisionService.js            # Frontend client for AI Decision Engine
-│   │   │   └── api.js                          # Axios HTTP client with auth interceptors
-│   │   └── index.css                           # Glassmorphism Design System & chart styles
-│   └── package.json
-│
-├── docker-compose.yml                          # Multi-container orchestration
-└── README.md
-```
+- **AI / LLM Engine**: [Ollama](https://ollama.com/) running `llama3.2:3b`.
+- **Frontend**: [React 18/19](https://reactjs.org/), [Vite](https://vitejs.dev/), [Leaflet](https://leafletjs.com/).
+- **Messaging & Cache**: Redis 5+ and RabbitMQ.
 
 ---
 
@@ -230,10 +131,10 @@ GoogleMapsDisaster/
 ---
 
 ### 1. Database Setup
-Create a PostgreSQL database named `aegisai_db` (or `rescuenet`):
+Create a PostgreSQL database named `rescuenet`:
 ```sql
-CREATE DATABASE aegisai_db;
-\c aegisai_db
+CREATE DATABASE rescuenet;
+\c rescuenet
 CREATE EXTENSION IF NOT EXISTS postgis;
 ```
 
@@ -247,22 +148,25 @@ CREATE EXTENSION IF NOT EXISTS postgis;
    pip install -r requirements.txt
    ```
 
-2. **Apply Alembic Migrations**:
+2. **Configure Environment**:
+   Copy `.env.example` to `.env` and set `SEED_ADMIN_PASSWORD`, `SEED_COMMANDER_PASSWORD`, etc.
+
+3. **Apply Alembic Migrations**:
    ```bash
    alembic upgrade head
    ```
 
-3. **Seed the database**:
+4. **Seed the database (Development Only)**:
+   Ensure `ENVIRONMENT=development` and run:
    ```bash
-   python seed.py
+   python seed_data.py
    ```
 
-4. **Start FastAPI Backend**:
+5. **Start FastAPI Backend**:
    ```bash
    uvicorn app.main:app --reload --port 8000
    ```
    - Interactive Swagger API Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-   - Alternative ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
@@ -278,49 +182,12 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 
 ---
 
-## 📡 REST API Reference Summary
-
-### 🔮 Predictive AI & Forecasting Intelligence (`/api/v1/predictions`)
-
-| Method | Endpoint | Description | Auth / Role |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/predictions/dashboard` | Consolidated multi-horizon predictive dashboard payload | Authenticated |
-| `GET` | `/api/v1/predictions/casualties` | Multi-horizon (+5m, +15m, +30m, +60m) casualty surge forecast | Authenticated |
-| `GET` | `/api/v1/predictions/hospitals` | Hospital bed & ICU capacity saturation forecast | Authenticated |
-| `GET` | `/api/v1/predictions/resources` | Emergency fleet demand and shortage forecast | Authenticated |
-| `GET` | `/api/v1/predictions/disaster-risk`| Multi-hazard spatial risk and propagation forecast | Authenticated |
-| `GET` | `/api/v1/predictions/fire-spread` | Multi-horizon fire propagation envelopes | Authenticated |
-| `GET` | `/api/v1/predictions/flood-risk` | Flood inundation and evacuation urgency forecast | Authenticated |
-| `GET` | `/api/v1/predictions/history` | Historical prediction records and telemetry | Authenticated |
-| `POST` | `/api/v1/predictions/history/{id}/outcome` | Record observed outcome for error tracking (MAE / MAPE) | `ADMIN`, `COMMANDER` |
-| `POST` | `/api/v1/predictions/spread` | Disaster spread radius prediction with Ollama XAI | Authenticated |
-| `POST` | `/api/v1/predictions/optimize` | AI-driven greedy resource allocation optimization | `ADMIN`, `COMMANDER` |
-| `POST` | `/api/v1/predictions/recommend` | RL-based action recommendation | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-| `POST` | `/api/v1/predictions/explain` | XAI decision explainability narrative | Authenticated |
-
-### 🧠 AI Decision Intelligence Engine (`/api/v1/ai`)
-
-| Method | Endpoint | Description | Auth / Role |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/ai/decisions/generate` | Generate AI emergency response recommendations | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-| `GET` | `/api/v1/ai/decisions` | List and filter decisions (paginated) | Authenticated |
-| `GET` | `/api/v1/ai/decisions/{id}` | Get decision details by ID or UUID | Authenticated |
-| `POST` | `/api/v1/ai/decisions/{id}/approve` | Approve decision (auto-execute dispatch if requested) | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-| `POST` | `/api/v1/ai/decisions/{id}/reject` | Reject recommendation with commander reason | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-| `POST` | `/api/v1/ai/decisions/{id}/modify` | Override resource unit or hospital destination | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-| `POST` | `/api/v1/ai/decisions/{id}/execute` | Execute approved decision (transaction-safe dispatch) | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-| `GET` | `/api/v1/ai/decisions/{id}/explanation` | Get LLM tactical briefing & XAI reasoning | Authenticated |
-| `POST` | `/api/v1/ai/decisions/benchmark` | Benchmark Baseline vs Heuristic vs Optimized vs ML | `ADMIN`, `COMMANDER` |
-| `POST` | `/api/v1/ai/decisions/what-if` | Run What-If simulation on isolated state | `ADMIN`, `COMMANDER` |
-| `POST` | `/api/v1/ai/decisions/{id}/feedback` | Record commander feedback & observed outcomes | `ADMIN`, `COMMANDER`, `DISPATCHER` |
-
----
-
 ## 🧪 Testing Suite & Quality Assurance
 
-Run the test suite:
+Run the test suite (requires `SECRET_KEY` in env):
 ```bash
-pytest backend/app/modules/prediction/tests backend/app/modules/ai/tests -v
+cd backend
+pytest -v
 ```
 
 ---

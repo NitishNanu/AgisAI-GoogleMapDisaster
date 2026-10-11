@@ -116,3 +116,8 @@ class Hospital(Base, TimestampMixin):
         self.icu_capacity = value
         if not self.available_icu:
             self.available_icu = value
+
+    @property
+    def occupied_beds(self) -> int:
+        """Currently occupied beds calculated from total and available beds."""
+        return max(0, self.total_beds - self.available_beds)

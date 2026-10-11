@@ -123,7 +123,12 @@ class MissionOperationsAgent(BaseAgent):
             raise ValueError(f"Assignment #{assignment_id} not found.")
 
         incident = assignment.incident or db.query(Incident).filter(Incident.id == assignment.incident_id).first()
+        if not incident:
+            raise ValueError(f"Incident for assignment #{assignment_id} not found.")
+
         team = assignment.team or db.query(RescueTeam).filter(RescueTeam.id == assignment.team_id).first()
+        if not team:
+            raise ValueError(f"Rescue team for assignment #{assignment_id} not found.")
 
         hospitals = db.query(Hospital).all()
         if not hospitals:
@@ -149,8 +154,8 @@ class MissionOperationsAgent(BaseAgent):
 
             # Suitability scoring (0-100)
             # Bed availability weight: 40%, ICU weight: 30%, Proximity weight: 30%
-            avail_beds = hosp.total_beds - hosp.occupied_beds
-            avail_icu = getattr(hosp, "icu_beds_available", max(2, int(avail_beds * 0.15)))
+            avail_beds = hosp.available_beds
+            avail_icu = hosp.available_icu
             
             bed_score = min(40.0, (avail_beds / 50.0) * 40.0)
             icu_score = min(30.0, (avail_icu / 10.0) * 30.0)
@@ -207,7 +212,12 @@ class MissionOperationsAgent(BaseAgent):
             raise ValueError(f"Assignment #{assignment_id} not found.")
 
         incident = assignment.incident or db.query(Incident).filter(Incident.id == assignment.incident_id).first()
+        if not incident:
+            raise ValueError(f"Incident for assignment #{assignment_id} not found.")
+
         team = assignment.team or db.query(RescueTeam).filter(RescueTeam.id == assignment.team_id).first()
+        if not team:
+            raise ValueError(f"Rescue team for assignment #{assignment_id} not found.")
 
         now = datetime.now(timezone.utc)
         elapsed_mins = 0.0

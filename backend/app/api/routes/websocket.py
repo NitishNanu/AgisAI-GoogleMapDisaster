@@ -41,28 +41,27 @@ def _validate_ws_token(token: str | None) -> dict[str, Any] | None:
         return None
 
 
+from app.core.security import get_current_active_user
+from fastapi import Depends
+
+async def get_ws_user(websocket: WebSocket, token: str | None = Query(default=None)):
+    payload = _validate_ws_token(token)
+    if not payload:
+        await websocket.close(code=_WS_POLICY_VIOLATION, reason="Authentication required.")
+        return None
+    return payload
+
 @router.websocket("/ws/v1/stream")
 async def websocket_stream_endpoint(
     websocket: WebSocket,
     client_id: str | None = Query(default=None),
-    token: str | None = Query(default=None),
+    user_payload: dict[str, Any] | None = Depends(get_ws_user),
 ) -> None:
-    # ------------------------------------------------------------------ #
-    # C3 FIX: Authenticate the token BEFORE accepting the WebSocket.      #
-    # Reject unauthenticated connections with code 1008 (Policy Violation) #
-    # ------------------------------------------------------------------ #
-    payload = _validate_ws_token(token)
-    if payload is None:
-        logger.warning(
-            "websocket_auth_rejected",
-            client_id=client_id,
-            reason="missing_or_invalid_token",
-        )
-        await websocket.close(code=_WS_POLICY_VIOLATION, reason="Authentication required.")
+    if user_payload is None:
         return
 
-    user_id = payload.get("sub")
-    user_role = payload.get("role", "CITIZEN")
+    user_id = user_payload.get("sub")
+    user_role = user_payload.get("role", "CITIZEN")
 
     assigned_client_id = client_id or str(uuid.uuid4())
     await ws_manager.connect(assigned_client_id, websocket)
@@ -83,6 +82,16 @@ async def websocket_stream_endpoint(
         while True:
             data = await websocket.receive_json()
             action = data.get("action")
+            # Verify token on every payload
+            payload_token = data.get("token")
+            payload = _validate_ws_token(payload_token)
+            if not payload:
+                await ws_manager.send_personal_message(
+                    assigned_client_id, {"event": "error", "message": "Invalid token on payload"}
+                )
+                continue
+
+            current_role = payload.get("role", "CITIZEN")
 
             if action == "subscribe":
                 channel = data.get("channel", "all")
@@ -106,6 +115,25 @@ async def websocket_stream_endpoint(
                     assigned_client_id,
                     {"event": "pong", "timestamp": data.get("timestamp")},
                 )
+
+            elif action == "Spawn Incident":
+                if current_role not in ["COMMANDER", "ADMIN", "DISPATCHER"]:
+                    await ws_manager.send_personal_message(assigned_client_id, {"event": "error", "message": "RBAC Denied"})
+                    continue
+                # Spawn logic
+                from app.modules.simulation.engine import engine
+                engine.force_add_disaster(data.get("lat"), data.get("lon"), data.get("severity", "HIGH"))
+                await ws_manager.send_personal_message(assigned_client_id, {"event": "incident_spawned"})
+
+            elif action == "Launch Simulation":
+                if current_role not in ["ADMIN", "COMMANDER"]:
+                    await ws_manager.send_personal_message(assigned_client_id, {"event": "error", "message": "RBAC Denied"})
+                    continue
+                # Launch logic
+                from app.modules.simulation.scheduler import scheduler, scheduled_tick
+                if not scheduler.running:
+                    scheduler.start()
+                await ws_manager.send_personal_message(assigned_client_id, {"event": "simulation_launched"})
 
     except WebSocketDisconnect:
         ws_manager.disconnect(assigned_client_id)

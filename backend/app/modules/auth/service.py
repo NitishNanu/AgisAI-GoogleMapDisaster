@@ -1,4 +1,4 @@
-﻿"""
+"""
 AegisAI Auth Module â€” Authentication Domain Service.
 
 Encapsulates all authentication business logic. The service layer:
@@ -62,7 +62,7 @@ class AuthService:
             name=request.name,
             email=request.email,
             password_hash=hash_password(request.password),
-            role=request.role.value,
+            role="CITIZEN",  # always CITIZEN — ADMIN assigns roles after registration
         )
 
         logger.info(

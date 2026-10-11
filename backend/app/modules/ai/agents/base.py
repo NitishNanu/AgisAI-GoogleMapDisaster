@@ -10,7 +10,7 @@ Provides:
 
 import json
 import time
-from typing import Any
+from typing import Any, cast
 import httpx
 import structlog
 
@@ -61,9 +61,10 @@ class BaseAgent:
                     raw = raw[7:]
                 if raw.startswith("```"):
                     raw = raw[3:]
-                if raw.endswith("```"):
-                    raw = raw[:-3]
-                return json.loads(raw.strip())
+                parsed = json.loads(raw.strip())
+                if isinstance(parsed, dict):
+                    return cast(dict[str, Any], parsed)
+                return None
         except Exception as err:
             logger.debug(
                 "agent_llm_call_fallback",

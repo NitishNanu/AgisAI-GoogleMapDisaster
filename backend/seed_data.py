@@ -1,20 +1,22 @@
 """
-RescueNet AI — Master Seed Script.
+AegisAI — Master Seed Script (Development Only).
 
-Seeds the Chandigarh, Mohali, Panchkula demo geography with:
-- 6 Disasters
-- 6 Rescue Teams
-- 5 Hospitals
-- 6 Shelters
-- Platform Users (Admin, Commander, Dispatcher, Citizen)
-- Alerts & Initial Assignments
+Seeds the Chandigarh/Mohali/Panchkula demo geography.
+
+IMPORTANT:
+  - This script runs ONLY when ENVIRONMENT=development AND SEED_ON_START=true.
+  - Passwords are taken from env vars (SEED_ADMIN_PASSWORD, SEED_COMMANDER_PASSWORD, etc.).
+  - Never embed plain-text passwords in source code.
+  - The first ADMIN user should be created via create_admin.py or the
+    ADMIN_EMAIL / ADMIN_PASSWORD env vars at first boot.
 """
 
+import os
 import sys
 import traceback
 from datetime import datetime, timezone
 
-sys.path.insert(0, "d:/PROJECTS/GoogleMapsDisaster/backend")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 
 from app.core.database.session import SessionLocal
 from app.core.security.jwt import hash_password
@@ -29,19 +31,33 @@ from app.modules.resource.models import RescueTeam, ResourceAssignment, Shelter
 try:
     from geoalchemy2.elements import WKTElement
 except ImportError:
-    WKTElement = None
+    WKTElement = None  # type: ignore[assignment, misc]
 
 
-def make_geom(lat: float, lon: float):
+def make_geom(lat: float, lon: float):  # type: ignore[no-untyped-def]
     if WKTElement:
         return WKTElement(f"POINT({lon} {lat})", srid=4326)
     return None
 
 
-def seed_data():
+def _require_env(name: str) -> str:
+    """Read a required environment variable. Fail clearly if missing."""
+    val = os.environ.get(name, "").strip()
+    if not val:
+        raise RuntimeError(
+            f"Seed aborted: env var {name!r} is not set. "
+            "Set it in your .env file before running seeder."
+        )
+    return val
+
+
+def seed_data() -> None:
+    """
+    Insert demo data.  Guarded by env checks — see module docstring.
+    """
     db = SessionLocal()
     try:
-        print("Cleaning existing demo data...")
+        print("[seed] Cleaning existing demo data...")
         db.query(ResourceAssignment).delete()
         db.query(Alert).delete()
         db.query(Incident).delete()
@@ -51,41 +67,49 @@ def seed_data():
         db.query(User).delete()
         db.commit()
 
+        # ----------------------------------------------------------------
+        # Passwords from env vars — NEVER hardcoded
+        # ----------------------------------------------------------------
+        admin_pw = _require_env("SEED_ADMIN_PASSWORD")
+        commander_pw = _require_env("SEED_COMMANDER_PASSWORD")
+        dispatcher_pw = _require_env("SEED_DISPATCHER_PASSWORD")
+        citizen_pw = _require_env("SEED_CITIZEN_PASSWORD")
+
         # 1. Platform Users
-        print("Seeding users...")
+        print("[seed] Seeding demo users...")
         admin = User(
             name="System Admin",
-            email="admin@example.com",
-            password_hash=hash_password("Admin123"),
+            email="admin@example.local",
+            password_hash=hash_password(admin_pw),
             role="ADMIN",
             is_active=True,
         )
         commander = User(
             name="Command Chief",
-            email="commander@example.com",
-            password_hash=hash_password("Commander123"),
+            email="commander@example.local",
+            password_hash=hash_password(commander_pw),
             role="COMMANDER",
             is_active=True,
         )
         dispatcher = User(
             name="Central Dispatcher",
-            email="dispatcher@example.com",
-            password_hash=hash_password("Dispatcher123"),
+            email="dispatcher@example.local",
+            password_hash=hash_password(dispatcher_pw),
             role="DISPATCHER",
             is_active=True,
         )
         citizen = User(
-            name="Nitish Citizen",
-            email="citizen@example.com",
-            password_hash=hash_password("Citizen123"),
+            name="Demo Citizen",
+            email="citizen@example.local",
+            password_hash=hash_password(citizen_pw),
             role="CITIZEN",
             is_active=True,
         )
         db.add_all([admin, commander, dispatcher, citizen])
         db.commit()
 
-        # 2. Alerts (Early Warning Systems)
-        print("Seeding early warning alerts...")
+        # 2. Alerts
+        print("[seed] Seeding early warning alerts...")
         alert1 = Alert(
             title="Industrial Zone Hazard Warning",
             message="High concentration of volatile gas reported in Industrial Area Phase 1.",
@@ -100,8 +124,8 @@ def seed_data():
         )
         db.add_all([alert1, alert2])
 
-        # 3. Disasters (Chandigarh / Mohali / Panchkula)
-        print("Seeding 6 disasters...")
+        # 3. Disasters
+        print("[seed] Seeding 6 incidents...")
         disasters = [
             Incident(
                 title="Industrial Fire",
@@ -185,8 +209,8 @@ def seed_data():
         db.add_all(disasters)
         db.commit()
 
-        # 4. Rescue Teams (6 Units)
-        print("Seeding 6 rescue teams...")
+        # 4. Rescue Teams
+        print("[seed] Seeding 6 rescue teams...")
         teams = [
             RescueTeam(
                 team_name="Chandigarh Rescue Team 1",
@@ -246,8 +270,8 @@ def seed_data():
         db.add_all(teams)
         db.commit()
 
-        # 5. Hospitals (5 Facilities)
-        print("Seeding 5 hospitals...")
+        # 5. Hospitals
+        print("[seed] Seeding 5 hospitals...")
         hospitals = [
             Hospital(
                 name="PGIMER Chandigarh",
@@ -318,70 +342,22 @@ def seed_data():
         db.add_all(hospitals)
         db.commit()
 
-        # 6. Shelters (6 Safe Zones)
-        print("Seeding 6 shelters...")
+        # 6. Shelters
+        print("[seed] Seeding 6 shelters...")
         shelters = [
-            Shelter(
-                name="Community Centre Sector 17",
-                address="Sector 17, Chandigarh",
-                capacity=500,
-                current_occupancy=45,
-                latitude=30.7390,
-                longitude=76.7780,
-                location=make_geom(30.7390, 76.7780),
-            ),
-            Shelter(
-                name="Sports Complex Sector 42",
-                address="Sector 42, Chandigarh",
-                capacity=1200,
-                current_occupancy=150,
-                latitude=30.7250,
-                longitude=76.7450,
-                location=make_geom(30.7250, 76.7450),
-            ),
-            Shelter(
-                name="Mohali Indoor Stadium Shelter",
-                address="Phase 9, Mohali",
-                capacity=800,
-                current_occupancy=90,
-                latitude=30.6920,
-                longitude=76.7260,
-                location=make_geom(30.6920, 76.7260),
-            ),
-            Shelter(
-                name="Panchkula Sector 5 Ground Shelter",
-                address="Sector 5, Panchkula",
-                capacity=1000,
-                current_occupancy=110,
-                latitude=30.6950,
-                longitude=76.8550,
-                location=make_geom(30.6950, 76.8550),
-            ),
-            Shelter(
-                name="Community Hall Sector 22",
-                address="Sector 22-B, Chandigarh",
-                capacity=400,
-                current_occupancy=30,
-                latitude=30.7310,
-                longitude=76.7650,
-                location=make_geom(30.7310, 76.7650),
-            ),
-            Shelter(
-                name="Zirakpur Relief Transit Shelter",
-                address="Patiala Highway, Zirakpur",
-                capacity=600,
-                current_occupancy=70,
-                latitude=30.6350,
-                longitude=76.8200,
-                location=make_geom(30.6350, 76.8200),
-            ),
+            Shelter(name="Community Centre Sector 17", address="Sector 17, Chandigarh", capacity=500, current_occupancy=45, latitude=30.7390, longitude=76.7780, location=make_geom(30.7390, 76.7780)),
+            Shelter(name="Sports Complex Sector 42", address="Sector 42, Chandigarh", capacity=1200, current_occupancy=150, latitude=30.7250, longitude=76.7450, location=make_geom(30.7250, 76.7450)),
+            Shelter(name="Mohali Indoor Stadium Shelter", address="Phase 9, Mohali", capacity=800, current_occupancy=90, latitude=30.6920, longitude=76.7260, location=make_geom(30.6920, 76.7260)),
+            Shelter(name="Panchkula Sector 5 Ground Shelter", address="Sector 5, Panchkula", capacity=1000, current_occupancy=110, latitude=30.6950, longitude=76.8550, location=make_geom(30.6950, 76.8550)),
+            Shelter(name="Community Hall Sector 22", address="Sector 22-B, Chandigarh", capacity=400, current_occupancy=30, latitude=30.7310, longitude=76.7650, location=make_geom(30.7310, 76.7650)),
+            Shelter(name="Zirakpur Relief Transit Shelter", address="Patiala Highway, Zirakpur", capacity=600, current_occupancy=70, latitude=30.6350, longitude=76.8200, location=make_geom(30.6350, 76.8200)),
         ]
         db.add_all(shelters)
         db.commit()
 
-        print("Master seed data inserted successfully!")
-        print(f"Summary: {len(disasters)} disasters, {len(teams)} teams, {len(hospitals)} hospitals, {len(shelters)} shelters.")
-    except Exception as e:
+        print("[seed] Demo data seeded successfully.")
+        print(f"[seed] Summary: {len(disasters)} incidents, {len(teams)} teams, {len(hospitals)} hospitals, {len(shelters)} shelters.")
+    except Exception:
         db.rollback()
         traceback.print_exc()
     finally:
