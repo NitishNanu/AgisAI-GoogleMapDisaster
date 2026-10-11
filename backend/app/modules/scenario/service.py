@@ -48,10 +48,11 @@ class ScenarioService:
     def preview_scenario(cls, payload: ScenarioCreateRequest) -> ScenarioPreviewResponse:
         """Compute estimated casualties, shelter/hospital demands, and risk score."""
         val_res = cls.validate_scenario(payload)
+        preview = BaselineRiskScorer.calculate_preview(payload)
         if not val_res.is_valid:
-            error_msgs = "; ".join(f"{e.field}: {e.message}" for e in val_res.errors)
-            raise ValidationException(f"Invalid scenario configuration: {error_msgs}")
-        return BaselineRiskScorer.calculate_preview(payload)
+            for err in val_res.errors:
+                preview.warnings.append(f"{err.field}: {err.message}")
+        return preview
 
     @classmethod
     def get_presets(cls) -> list[PresetResponse]:

@@ -158,6 +158,6 @@ class ResourceAssignment(Base, TimestampMixin):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    team = relationship("RescueTeam", back_populates="assignments", lazy="joined")
-    incident = relationship("Incident", foreign_keys=[incident_id], lazy="joined")
-    dispatcher = relationship("User", foreign_keys=[dispatched_by], lazy="joined")
+    team = relationship("RescueTeam", back_populates="assignments", lazy="select")
+    incident = relationship("Incident", foreign_keys=[incident_id], lazy="select")
+    dispatcher = relationship("User", foreign_keys=[dispatched_by], lazy="select")

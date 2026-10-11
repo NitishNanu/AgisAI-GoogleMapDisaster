@@ -111,38 +111,57 @@ export function ScenarioDesigner({ onScenarioLaunched, onOpenLibrary }) {
     }, []);
 
     const buildPayload = () => ({
-        name, description,
+        name: (name && name.trim()) || "Urban Seismic Rupture Scenario",
+        description: description || "Emergency response simulation scenario",
         disaster: {
-            type: disasterType, severity,
-            latitude: Number(latitude), longitude: Number(longitude),
-            radius_km: Number(radiusKm), magnitude: Number(magnitude), depth_km: Number(depthKm),
+            type: disasterType || "EARTHQUAKE",
+            severity: severity || "HIGH",
+            latitude: Number(latitude) || 30.7399,
+            longitude: Number(longitude) || 76.783,
+            radius_km: Math.max(0.1, Number(radiusKm) || 5.0),
+            magnitude: Number(magnitude) || 6.8,
+            depth_km: Number(depthKm) || 10.0,
         },
         environment: {
-            weather_preset: weatherPreset,
-            temperature_celsius: Number(temperature),
+            weather_preset: weatherPreset || "CLEAR",
+            temperature_celsius: Number(temperature) || 28.0,
             humidity_percent: 60,
-            wind_speed_kmh: Number(windSpeed),
-            visibility_km: Number(visibility),
+            wind_speed_kmh: Number(windSpeed) || 12.0,
+            visibility_km: Number(visibility) || 10.0,
         },
         population: {
-            count: Number(populationCount),
-            density: populationDensity,
-            vulnerable_percentage: Number(vulnerablePct),
+            count: Math.max(100, Number(populationCount) || 50000),
+            density: populationDensity || "HIGH",
+            vulnerable_percentage: Math.max(0, Math.min(100, Number(vulnerablePct) || 15.0)),
         },
         resources: {
-            ambulances: Number(ambulances), fire_trucks: Number(fireTrucks),
-            police_units: Number(policeUnits), rescue_teams: Number(rescueTeams),
-            drones: Number(drones), helicopters: Number(helicopters),
+            ambulances: Math.max(0, parseInt(ambulances, 10) || 0),
+            fire_trucks: Math.max(0, parseInt(fireTrucks, 10) || 0),
+            police_units: Math.max(0, parseInt(policeUnits, 10) || 0),
+            rescue_teams: Math.max(0, parseInt(rescueTeams, 10) || 0),
+            drones: Math.max(0, parseInt(drones, 10) || 0),
+            helicopters: Math.max(0, parseInt(helicopters, 10) || 0),
         },
-        hospitals: { total_beds: Number(totalBeds), icu_beds: Number(icuBeds), emergency_capacity_level: emergencyLevel },
-        shelters: { capacity: Number(shelterCapacity), initial_occupancy: Number(shelterOccupancy) },
+        hospitals: {
+            total_beds: Math.max(10, parseInt(totalBeds, 10) || 1400),
+            icu_beds: Math.max(0, parseInt(icuBeds, 10) || 180),
+            emergency_capacity_level: emergencyLevel || "NORMAL",
+        },
+        shelters: {
+            capacity: Math.max(100, parseInt(shelterCapacity, 10) || 8000),
+            initial_occupancy: Math.max(0, parseInt(shelterOccupancy, 10) || 400),
+        },
         infrastructure: {
-            road_damage_percentage: Number(roadDamagePct),
-            road_closure_percentage: Number(roadClosurePct),
-            bridge_damage_percentage: Number(bridgeDamagePct),
-            power_outage_percentage: Number(powerOutagePct),
+            road_damage_percentage: Math.max(0, Math.min(100, Number(roadDamagePct) || 0)),
+            road_closure_percentage: Math.max(0, Math.min(100, Number(roadClosurePct) || 0)),
+            bridge_damage_percentage: Math.max(0, Math.min(100, Number(bridgeDamagePct) || 0)),
+            power_outage_percentage: Math.max(0, Math.min(100, Number(powerOutagePct) || 0)),
         },
-        simulation: { duration_minutes: Number(durationMins), speed: Number(speedMultiplier), random_seed: Number(randomSeed) },
+        simulation: {
+            duration_minutes: Math.max(5, parseInt(durationMins, 10) || 60),
+            speed: Math.max(0.1, Number(speedMultiplier) || 1.0),
+            random_seed: Math.max(0, parseInt(randomSeed, 10) || 42),
+        },
     });
 
     // Auto-preview (debounced)

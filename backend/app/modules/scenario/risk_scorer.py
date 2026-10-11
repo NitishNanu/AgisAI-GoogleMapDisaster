@@ -15,6 +15,7 @@ class BaselineRiskScorer:
     SEVERITY_WEIGHTS = {
         DisasterSeverity.LOW: 0.2,
         DisasterSeverity.MODERATE: 0.4,
+        DisasterSeverity.MEDIUM: 0.4,
         DisasterSeverity.HIGH: 0.7,
         DisasterSeverity.SEVERE: 0.85,
         DisasterSeverity.CRITICAL: 1.0,

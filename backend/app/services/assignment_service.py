@@ -24,15 +24,26 @@ logger = structlog.get_logger("aegis_ai.assignment_service")
 
 # State machine: Valid mission transitions
 ALLOWED_TRANSITIONS: dict[str, set[str]] = {
-    "ASSIGNED": {"DISPATCHED", "CANCELLED", "EN_ROUTE"},
-    "DISPATCHED": {"EN_ROUTE", "CANCELLED"},
-    "EN_ROUTE": {"ARRIVED", "CANCELLED"},
-    "ARRIVED": {"COMPLETED", "CANCELLED"},
+    "ASSIGNED": {"DISPATCHED", "EN_ROUTE", "CANCELLED"},
+    "DISPATCHED": {"EN_ROUTE", "ARRIVED", "CANCELLED"},
+    "EN_ROUTE": {"ARRIVED", "ON_SCENE", "CANCELLED"},
+    "ARRIVED": {"ON_SCENE", "OPERATIONAL", "MEDEVAC", "COMPLETED", "CANCELLED"},
+    "ON_SCENE": {"OPERATIONAL", "MEDEVAC", "COMPLETED", "CANCELLED"},
+    "OPERATIONAL": {"MEDEVAC", "COMPLETED", "CANCELLED"},
+    "MEDEVAC": {"COMPLETED", "CANCELLED"},
     "COMPLETED": set(),
     "CANCELLED": set(),
 }
 
-ACTIVE_MISSION_STATUSES = {"ASSIGNED", "DISPATCHED", "EN_ROUTE", "ARRIVED"}
+ACTIVE_MISSION_STATUSES = {
+    "ASSIGNED",
+    "DISPATCHED",
+    "EN_ROUTE",
+    "ARRIVED",
+    "ON_SCENE",
+    "OPERATIONAL",
+    "MEDEVAC",
+}
 
 
 class AssignmentService:
@@ -90,23 +101,24 @@ class AssignmentService:
             raise EntityNotFoundException("RescueTeam", team_id)
 
         # 3. Check team availability
-        if team.status != "AVAILABLE":
+        if team.status not in ("AVAILABLE", "STANDBY"):
             raise ConflictException(
                 f"Rescue team {team.id} ({team.team_name}) is currently {team.status} and cannot be assigned."
             )
 
-        # 4. Check if disaster already has an active assignment
+        # 4. Check if this specific team already has an active assignment for this disaster
         existing_active = (
             db.query(ResourceAssignment)
             .filter(
                 ResourceAssignment.incident_id == incident_id,
+                ResourceAssignment.team_id == team_id,
                 ResourceAssignment.status.in_(list(ACTIVE_MISSION_STATUSES)),
             )
             .first()
         )
         if existing_active:
             raise ConflictException(
-                f"Disaster {incident_id} already has an active mission (Assignment #{existing_active.id}, status: {existing_active.status})."
+                f"Rescue team {team.id} ({team.team_name}) is already actively deployed to disaster {incident_id} (Assignment #{existing_active.id}, status: {existing_active.status})."
             )
 
         # Format geometry string if dict/list passed
@@ -167,7 +179,7 @@ class AssignmentService:
         assignment = (
             db.query(ResourceAssignment)
             .filter(ResourceAssignment.id == assignment_id)
-            .with_for_update()
+            .with_for_update(of=ResourceAssignment)
             .first()
         )
         if assignment is None:
@@ -207,13 +219,13 @@ class AssignmentService:
         team = (
             db.query(RescueTeam)
             .filter(RescueTeam.id == assignment.team_id)
-            .with_for_update()
+            .with_for_update(of=RescueTeam)
             .first()
         )
         if team:
             if target_status in ("COMPLETED", "CANCELLED"):
                 team.status = "AVAILABLE"
-            elif target_status == "ARRIVED":
+            elif target_status in ("ARRIVED", "ON_SCENE", "OPERATIONAL", "MEDEVAC"):
                 team.status = "ON_SCENE"
             elif target_status in ("DISPATCHED", "EN_ROUTE"):
                 team.status = "DISPATCHED"

@@ -16,7 +16,9 @@ import uuid
 
 import structlog
 from fastapi import Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import Response
 
@@ -33,6 +35,8 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
     - Generates a unique X-Request-ID for distributed tracing
     - Measures end-to-end processing time
     - Catches AegisException subclasses and returns correct HTTP status codes
+    - Catches RequestValidationError and returns 422
+    - Catches StarletteHTTPException and returns exc.status_code
     - Catches unhandled exceptions and returns 500 with sanitized error info
     """
 
@@ -86,6 +90,47 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
                 },
             )
 
+        except RequestValidationError as exc:
+            process_ms = (time.perf_counter() - start_time) * 1000
+            logger.warning(
+                "request_validation_error",
+                errors=exc.errors(),
+                duration_ms=round(process_ms, 2),
+            )
+            return JSONResponse(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                headers={"X-Request-ID": request_id},
+                content={
+                    "success": False,
+                    "status_code": status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    "message": "Request validation failed.",
+                    "data": None,
+                    "error": {"detail": exc.errors()},
+                    "request_id": request_id,
+                },
+            )
+
+        except StarletteHTTPException as exc:
+            process_ms = (time.perf_counter() - start_time) * 1000
+            logger.warning(
+                "http_exception",
+                status_code=exc.status_code,
+                detail=exc.detail,
+                duration_ms=round(process_ms, 2),
+            )
+            return JSONResponse(
+                status_code=exc.status_code,
+                headers={"X-Request-ID": request_id},
+                content={
+                    "success": False,
+                    "status_code": exc.status_code,
+                    "message": str(exc.detail),
+                    "data": None,
+                    "error": {"detail": exc.detail},
+                    "request_id": request_id,
+                },
+            )
+
         except Exception as exc:
             process_ms = (time.perf_counter() - start_time) * 1000
             logger.error(
@@ -103,7 +148,7 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
                     "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
                     "message": "An unexpected internal server error occurred.",
                     "data": None,
-                    "error": {"request_id": request_id},
+                    "error": {"request_id": request_id, "detail": str(exc)},
                     "request_id": request_id,
                 },
             )

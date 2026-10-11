@@ -61,6 +61,8 @@ class SimulationService:
         severity: str,
         latitude: float,
         longitude: float,
+        affected_radius_meters: float = 1000.0,
+        reporter_id: int | None = None,
     ) -> dict:
         """
         Force-spawn a simulated incident.
@@ -69,9 +71,18 @@ class SimulationService:
         2. Registers the location in the engine's disaster proximity tracker
            so citizens and roads react on the next tick.
         """
+        from app.modules.auth.models import User  # noqa: PLC0415
         from app.modules.incident.enums import DisasterType, SeverityLevel  # noqa: PLC0415
         from app.modules.incident.schemas import IncidentCreate  # noqa: PLC0415
         from app.modules.incident.service import IncidentService  # noqa: PLC0415
+
+        # Fallback to first available system/admin user if reporter_id not supplied or invalid
+        effective_reporter_id = reporter_id
+        if not effective_reporter_id:
+            user = db.query(User).filter(User.role.in_(["ADMIN", "COMMANDER", "DISPATCHER"])).first()
+            if not user:
+                user = db.query(User).first()
+            effective_reporter_id = user.id if user else 1
 
         payload = IncidentCreate(
             title=f"Simulated {incident_type} Event",
@@ -80,11 +91,10 @@ class SimulationService:
             severity=SeverityLevel(severity),
             latitude=latitude,
             longitude=longitude,
-            affected_radius_meters=1000.0,
+            affected_radius_meters=affected_radius_meters,
         )
 
-        # System user (ID 1) represents automated system actions
-        incident = IncidentService.report_incident(db, payload, reporter_id=1)
+        incident = IncidentService.report_incident(db, payload, reporter_id=effective_reporter_id)
 
         # Register in the engine's proximity tracker for citizen/road simulation
         engine.force_add_disaster(lat=latitude, lon=longitude, severity=severity)

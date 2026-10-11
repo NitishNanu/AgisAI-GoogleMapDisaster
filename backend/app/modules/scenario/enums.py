@@ -31,6 +31,7 @@ class DisasterSeverity(str, Enum):
     """Standardized disaster severity classification."""
     LOW = "LOW"
     MODERATE = "MODERATE"
+    MEDIUM = "MEDIUM"
     HIGH = "HIGH"
     SEVERE = "SEVERE"
     CRITICAL = "CRITICAL"

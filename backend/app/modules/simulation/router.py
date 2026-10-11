@@ -95,7 +95,7 @@ def update_simulation_config(
 def spawn_incident(
     payload: SpawnIncidentRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(RequireRole(["ADMIN", "COMMANDER", "DISPATCHER"])),
+    current_user: User = Depends(RequireRole(["ADMIN", "COMMANDER", "DISPATCHER"])),
 ) -> ApiResponse[dict]:
     """
     Force-spawn an incident at the given coordinates in the simulation.
@@ -110,6 +110,8 @@ def spawn_incident(
         severity=payload.severity,
         latitude=payload.latitude,
         longitude=payload.longitude,
+        affected_radius_meters=payload.affected_radius_meters,
+        reporter_id=current_user.id,
     )
     return ApiResponse.created(data=result, message="Incident spawned in simulation.")
 

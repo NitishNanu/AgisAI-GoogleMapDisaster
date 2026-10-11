@@ -19,6 +19,13 @@ VALID_DISASTER_TYPES = {
     "GAS_LEAK",
     "HAZMAT",
     "CYCLONE",
+    "STORM",
+    "TSUNAMI",
+    "HURRICANE",
+    "PANDEMIC",
+    "ACCIDENT",
+    "WILDFIRE",
+    "LANDSLIDE",
 }
 
 

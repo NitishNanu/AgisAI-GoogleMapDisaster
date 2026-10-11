@@ -34,6 +34,10 @@ def init_db():
                     reason=str(ext_err),
                     hint="Ensure PostGIS is installed and the DB user has SUPERUSER or extension privileges.",
                 )
+            try:
+                connection.execute(text("ALTER TABLE resource_assignments DROP CONSTRAINT IF EXISTS ck_resource_assignments_status;"))
+            except Exception:
+                pass
 
         Base.metadata.create_all(bind=engine)
         logger.info("database_tables_verified")

@@ -106,7 +106,7 @@ class SimulationRunConfig(BaseModel):
 
 class ScenarioCreateRequest(BaseModel):
     """Request payload to create a new Scenario."""
-    name: str = Field(..., min_length=3, max_length=200)
+    name: str = Field(default="Draft Scenario", max_length=200)
     description: str | None = Field(default=None, max_length=2000)
     disaster: DisasterConfig = Field(default_factory=DisasterConfig)
     environment: EnvironmentConfig = Field(default_factory=EnvironmentConfig)

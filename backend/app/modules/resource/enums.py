@@ -1,4 +1,4 @@
-﻿"""AegisAI Resource Module â€” Domain Enums."""
+"""AegisAI Resource Module â€” Domain Enums."""
 
 from enum import Enum
 
@@ -35,5 +35,7 @@ class AssignmentStatus(str, Enum):
     EN_ROUTE = "EN_ROUTE"
     ARRIVED = "ARRIVED"
     ON_SCENE = "ON_SCENE"
+    OPERATIONAL = "OPERATIONAL"
+    MEDEVAC = "MEDEVAC"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
