@@ -9,6 +9,7 @@ Features:
 
 import math
 import time
+from typing import Any
 
 import structlog
 
@@ -22,7 +23,7 @@ class DynamicHazardRouter:
 
     def __init__(self):
         # In-memory road network nodes & hazard overlays
-        self.active_hazards: list[dict[str, any]] = []
+        self.active_hazards: list[dict[str, Any]] = []
 
     def register_hazard(self, lat: float, lon: float, hazard_type: str, radius_km: float = 0.5, penalty_factor: float = 5.0) -> None:
         """Adds or updates an active road hazard zone."""
@@ -45,7 +46,7 @@ class DynamicHazardRouter:
         end_lat: float,
         end_lon: float,
         avoid_hazards: bool = True,
-    ) -> dict[str, any]:
+    ) -> dict[str, Any]:
         """
         Calculates safe route geometry, distance, and duration considering active road hazards.
         """

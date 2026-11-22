@@ -6,6 +6,7 @@ Raw Report -> NER -> Location Candidates -> Geocoder -> Administrative Boundary 
 """
 
 import httpx
+from typing import Any
 import structlog
 
 logger = structlog.get_logger("aegis_ai.nlp.geocoder")
@@ -28,7 +29,7 @@ class DisasterGeocoder:
         self.nominatim_url = nominatim_url
         self.bounds = DEFAULT_ADMIN_BOUNDS
 
-    async def geocode_candidate(self, location_text: str) -> dict[str, any] | None:
+    async def geocode_candidate(self, location_text: str) -> dict[str, Any] | None:
         """
         Geocodes a candidate location name and validates against boundaries.
         """
@@ -77,7 +78,7 @@ class DisasterGeocoder:
             and self.bounds["min_lon"] <= lon <= self.bounds["max_lon"]
         )
 
-    def _match_synthetic_zone(self, text: str) -> dict[str, any] | None:
+    def _match_synthetic_zone(self, text: str) -> dict[str, Any] | None:
         """Matches standard Aegis City digital twin grid references."""
         import re
         match = re.search(r"Sector\s+(\d+)", text, re.IGNORECASE)

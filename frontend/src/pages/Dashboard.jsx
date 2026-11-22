@@ -30,6 +30,7 @@ import incidentService from "../services/incidentService";
 
 import {
     getDisasters,
+    updateDisaster,
     getHospitals,
     getShelters,
     getRescueTeams,
@@ -118,7 +119,10 @@ function Dashboard() {
                 getRescueTeams().catch((e) => { console.warn(e?.message); return []; }),
             ]);
 
-            setDisasters(disastersData || []);
+            const activeDisasters = (disastersData || []).filter(
+                (d) => d.status !== "RESOLVED" && d.status !== "COMPLETED" && d.status !== "CLOSED"
+            );
+            setDisasters(activeDisasters);
             setHospitals(hospitalsData || []);
             setShelters(sheltersData || []);
             setRescueTeams(teamsData || []);
@@ -166,14 +170,24 @@ function Dashboard() {
 
         const unsubIncidentCreated = wsManager.subscribe("INCIDENT_CREATED", (inc) => {
             if (!inc) return;
+            if (inc.status === "RESOLVED" || inc.status === "COMPLETED" || inc.status === "CLOSED") return;
             setDisasters((prev) => prev.some((d) => d.id === inc.id) ? prev : [inc, ...prev]);
         });
 
         const unsubIncidentUpdated = wsManager.subscribe("INCIDENT_UPDATED", (inc) => {
             if (!inc) return;
-            setDisasters((prev) => prev.map((d) => d.id === inc.id ? { ...d, ...inc } : d));
-            if (selectedDisaster?.id === inc.id)
-                setSelectedDisaster((prev) => ({ ...prev, ...inc }));
+            if (inc.status === "RESOLVED" || inc.status === "COMPLETED" || inc.status === "CLOSED") {
+                // Real-time: Remove completed/resolved incident from active list & map
+                setDisasters((prev) => prev.filter((d) => d.id !== inc.id));
+                setSelectedDisaster((prev) => (prev?.id === inc.id ? null : prev));
+                setRecommendedTeams([]);
+                setRecommendedTeam(null);
+                setActiveRoute(null);
+            } else {
+                setDisasters((prev) => prev.map((d) => d.id === inc.id ? { ...d, ...inc } : d));
+                if (selectedDisaster?.id === inc.id)
+                    setSelectedDisaster((prev) => ({ ...prev, ...inc }));
+            }
         });
 
         const unsubMissionCreated = wsManager.subscribe("MISSION_CREATED", () => {
@@ -184,6 +198,12 @@ function Dashboard() {
         const unsubMissionUpdated = wsManager.subscribe("MISSION_UPDATED", () => {
             fetchMissionsData();
             getRescueTeams().then(setRescueTeams);
+            getDisasters().then((fresh) => {
+                const active = (fresh || []).filter(
+                    (d) => d.status !== "RESOLVED" && d.status !== "COMPLETED" && d.status !== "CLOSED"
+                );
+                setDisasters(active);
+            }).catch(() => {});
         });
 
         const unsubSimTick = wsManager.subscribe("SIMULATION_TICK", (tickData) => {
@@ -323,10 +343,44 @@ function Dashboard() {
             setRescueTeams(await getRescueTeams());
             await fetchMissionsData();
             if (token) setAssignments(await getAssignments(token));
+            const freshDisasters = await getDisasters().catch(() => []);
+            const active = (freshDisasters || []).filter(
+                (d) => d.status !== "RESOLVED" && d.status !== "COMPLETED" && d.status !== "CLOSED"
+            );
+            setDisasters(active);
+            if (selectedDisaster && !active.some((d) => d.id === selectedDisaster.id)) {
+                setSelectedDisaster(null);
+                setRecommendedTeams([]);
+                setRecommendedTeam(null);
+                setActiveRoute(null);
+            }
             if (newStatus === "COMPLETED") alert("🎉 Mission completed! Response unit is now AVAILABLE.");
         } catch (err) {
             console.error("Status update failed:", err);
             alert(err?.response?.data?.message || err?.response?.data?.detail || "Failed to update mission status.");
+        }
+    }
+
+    // ── DIRECTLY RESOLVE INCIDENT ───────────────────────────────────────────
+    async function handleResolveIncident(incidentId) {
+        if (!isAuthenticated) { setIsAuthModalOpen(true); return; }
+        if (!hasRole(["ADMIN", "COMMANDER", "DISPATCHER"])) {
+            alert(`⚠️ Clearance Required: Only ADMIN, COMMANDER, or DISPATCHER can resolve incidents.`);
+            return;
+        }
+        try {
+            await updateDisaster(incidentId, { status: "RESOLVED" });
+            setDisasters((prev) => prev.filter((d) => d.id !== incidentId));
+            if (selectedDisaster?.id === incidentId) {
+                setSelectedDisaster(null);
+                setRecommendedTeams([]);
+                setRecommendedTeam(null);
+                setActiveRoute(null);
+            }
+            alert("Incident marked as RESOLVED and cleared from active operations.");
+        } catch (err) {
+            console.error("Failed to resolve incident:", err);
+            alert(err?.response?.data?.message || err?.message || "Failed to resolve incident.");
         }
     }
 
@@ -527,7 +581,7 @@ function Dashboard() {
                                             style={{
                                                 width: "100%",
                                                 marginTop: 10,
-                                                marginBottom: 10,
+                                                marginBottom: 8,
                                                 padding: "10px 14px",
                                                 background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
                                                 color: "white",
@@ -544,6 +598,29 @@ function Dashboard() {
                                             onClick={() => handleOpenIAP(selectedDisaster.id)}
                                         >
                                             <span>🧠</span> AI Incident Action Plan (IAP) & Directives
+                                        </button>
+
+                                        <button
+                                            className="action-btn"
+                                            style={{
+                                                width: "100%",
+                                                marginBottom: 10,
+                                                padding: "8px 14px",
+                                                background: "rgba(16, 185, 129, 0.15)",
+                                                color: "#10b981",
+                                                border: "1px solid rgba(16, 185, 129, 0.35)",
+                                                fontWeight: 600,
+                                                borderRadius: 8,
+                                                cursor: "pointer",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: 8,
+                                                transition: "all 0.2s",
+                                            }}
+                                            onClick={() => handleResolveIncident(selectedDisaster.id)}
+                                        >
+                                            <span>✅</span> Mark Incident as Resolved
                                         </button>
 
                                         <hr className="detail-divider" />

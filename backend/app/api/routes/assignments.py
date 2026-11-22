@@ -152,7 +152,8 @@ async def dispatch_team(
         pass
 
     try:
-        await publish_event("aegis.dispatch.created", payload_dump)
+        import asyncio
+        asyncio.create_task(publish_event("aegis.dispatch.created", payload_dump))
     except Exception:
         pass
 
@@ -193,6 +194,24 @@ async def update_assignment_status(
                 "completed_at": assignment.completed_at.isoformat() if assignment.completed_at else None,
             }
         )
+        if assignment.incident_id:
+            from app.modules.incident.models import Incident
+            inc = db.query(Incident).filter(Incident.id == assignment.incident_id).first()
+            if inc:
+                await ws_manager.broadcast_to_channel(
+                    channel="incidents",
+                    event_type="INCIDENT_UPDATED",
+                    data={
+                        "id": inc.id,
+                        "title": inc.title,
+                        "status": inc.status,
+                        "severity": inc.severity,
+                        "disaster_type": inc.disaster_type,
+                        "latitude": inc.latitude,
+                        "longitude": inc.longitude,
+                        "affected_radius_meters": inc.affected_radius_meters,
+                    }
+                )
     except Exception:
         pass
 

@@ -46,7 +46,7 @@ router = APIRouter(prefix="/simulation", tags=["Digital Twin Simulation"])
 )
 async def perform_simulation_action(
     payload: SimulationActionRequest,
-    _: User = Depends(RequireRole(["ADMIN", "COMMANDER", "DISPATCHER"])),
+    current_user: User = Depends(RequireRole(["ADMIN", "COMMANDER", "DISPATCHER"])),
 ) -> ApiResponse[SimulationStateResponse]:
     """
     Control the Digital Twin Engine.
@@ -56,8 +56,12 @@ async def perform_simulation_action(
       - `stop` / `pause`: Halt automatic tick processing
       - `resume`: Resume tick processing
       - `tick`: Manually process exactly one tick immediately
-      - `reset`: Full engine reset (destroys all current state!)
+      - `reset`: Full engine reset (destroys all current state! ADMIN only)
     """
+    if payload.action == "reset" and current_user.role != "ADMIN":
+        from app.core.common.exceptions import ForbiddenException  # noqa: PLC0415
+        raise ForbiddenException("Action 'reset' requires ADMIN operational clearance.")
+
     state = await SimulationService.perform_action(payload)
     return ApiResponse.ok(
         data=state,

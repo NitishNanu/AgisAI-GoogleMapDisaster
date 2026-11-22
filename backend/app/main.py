@@ -30,20 +30,22 @@ from app.modules.simulation.scheduler import setup_scheduler, shutdown_scheduler
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle events for the FastAPI application."""
-    # Startup
-    logger.info("aegis_backend_starting", title=settings.PROJECT_NAME, version=settings.VERSION)
-    setup_logging()
-    init_db()
+    if settings.ENVIRONMENT != "test":
+        # Startup
+        logger.info("aegis_backend_starting", title=settings.PROJECT_NAME, version=settings.VERSION)
+        setup_logging()
+        init_db()
 
-    # Start background simulation scheduler
-    setup_scheduler()
+        # Start background simulation scheduler
+        setup_scheduler()
 
     yield
 
-    # Shutdown
-    logger.info("aegis_backend_shutting_down")
-    shutdown_scheduler()
-    await close_rabbitmq()
+    if settings.ENVIRONMENT != "test":
+        # Shutdown
+        logger.info("aegis_backend_shutting_down")
+        shutdown_scheduler()
+        await close_rabbitmq()
 
 
 app = FastAPI(

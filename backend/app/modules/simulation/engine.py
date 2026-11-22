@@ -697,9 +697,13 @@ class DigitalTwinEngine:
     async def _get_rabbitmq_exchange(self) -> Any:
         """Get or initialize a persistent RabbitMQ channel and exchange."""
         import aio_pika  # noqa: PLC0415
+        from app.core.events.rabbitmq import is_broker_accessible  # noqa: PLC0415
+
+        if not is_broker_accessible():
+            return None
 
         if self._rmq_connection is None or self._rmq_connection.is_closed:
-            self._rmq_connection = await aio_pika.connect_robust(
+            self._rmq_connection = await aio_pika.connect(
                 settings.RABBITMQ_URL,
                 timeout=0.2,
             )
@@ -727,6 +731,8 @@ class DigitalTwinEngine:
             import aio_pika  # noqa: PLC0415
 
             exchange = await self._get_rabbitmq_exchange()
+            if not exchange:
+                return
             message = aio_pika.Message(
                 body=json.dumps(
                     state.model_dump(exclude={"citizens", "buildings", "roads"}),

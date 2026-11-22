@@ -106,19 +106,18 @@ class AssignmentService:
                 f"Rescue team {team.id} ({team.team_name}) is currently {team.status} and cannot be assigned."
             )
 
-        # 4. Check if this specific team already has an active assignment for this disaster
+        # 4. Check if disaster already has an active assignment
         existing_active = (
             db.query(ResourceAssignment)
             .filter(
                 ResourceAssignment.incident_id == incident_id,
-                ResourceAssignment.team_id == team_id,
                 ResourceAssignment.status.in_(list(ACTIVE_MISSION_STATUSES)),
             )
             .first()
         )
         if existing_active:
             raise ConflictException(
-                f"Rescue team {team.id} ({team.team_name}) is already actively deployed to disaster {incident_id} (Assignment #{existing_active.id}, status: {existing_active.status})."
+                f"Disaster {incident_id} already has an active mission (Assignment #{existing_active.id}, status: {existing_active.status})."
             )
 
         # Format geometry string if dict/list passed

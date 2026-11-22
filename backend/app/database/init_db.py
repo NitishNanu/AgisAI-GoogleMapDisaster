@@ -109,19 +109,9 @@ def init_db():
         finally:
             db.close()
 
-        # Auto-seed if database is empty
-        db = SessionLocal()
-        try:
-            incident_count = db.query(Incident).count()
-            if incident_count == 0:
-                logger.info("database_empty_auto_seeding")
-                try:
-                    from app.database.seeder import seed_database
-                    seed_database()
-                except Exception as seed_err:
-                    logger.warning("seeder_failed", error=str(seed_err))
-        finally:
-            db.close()
+        # Note: Startup auto-seeding is intentionally disabled so completed/resolved incidents
+        # are not overwritten on restart. Demo data is seeded on demand when a new user registers.
+        logger.info("startup_db_initialized_clean")
 
     except Exception as e:
         import traceback

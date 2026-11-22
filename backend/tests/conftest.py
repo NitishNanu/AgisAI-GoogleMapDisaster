@@ -49,6 +49,11 @@ except ImportError:
     pass
 
 
+import os
+
+os.environ["ENVIRONMENT"] = "test"
+os.environ.setdefault("SECRET_KEY", "test_secret_key_32_characters_minimum_len")
+
 from app.core.database.base import Base
 from app.core.database.session import get_db
 from app.core.security.jwt import create_access_token

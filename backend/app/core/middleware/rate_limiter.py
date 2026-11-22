@@ -21,6 +21,6 @@ from app.core.config.settings import settings
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=[settings.RATE_LIMIT_DEFAULT],
-    storage_uri="memory://" if settings.ENVIRONMENT in ("testing", "development") else settings.REDIS_URL,
+    storage_uri="memory://" if settings.ENVIRONMENT in ("test", "testing", "development") else settings.REDIS_URL,
     strategy="fixed-window",
 )

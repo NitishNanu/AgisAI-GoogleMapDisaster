@@ -81,7 +81,7 @@ def _upsert_shelter(db: Session, name: str, data: dict) -> tuple[Shelter, bool]:
     return shelter, True
 
 
-def seed_database() -> None:
+def seed_database(reporter_id: int | None = None) -> None:
     """
     Seed the AegisAI database with realistic demo data.
 
@@ -124,7 +124,7 @@ def seed_database() -> None:
             logger.info("user_created", email=commander.email, role="COMMANDER")
 
         db.commit()
-        reporter_id = admin.id
+        effective_reporter_id = reporter_id or admin.id
 
         # -- Hospitals ----------------------------------------------------------
         hospitals_data = [
@@ -283,7 +283,7 @@ def seed_database() -> None:
                 "disaster_type": "FIRE", "severity": "CRITICAL", "status": "RESPONDING",
                 "latitude": 30.7415, "longitude": 76.7785,
                 "affected_radius_meters": 800.0, "estimated_casualties": 12,
-                "reporter_id": reporter_id,
+                "reporter_id": effective_reporter_id,
                 "location": _wkt(76.7785, 30.7415),
             },
             {
@@ -292,7 +292,7 @@ def seed_database() -> None:
                 "disaster_type": "BUILDING_COLLAPSE", "severity": "CRITICAL", "status": "INVESTIGATING",
                 "latitude": 30.7330, "longitude": 76.7850,
                 "affected_radius_meters": 300.0, "estimated_casualties": 8,
-                "reporter_id": reporter_id,
+                "reporter_id": effective_reporter_id,
                 "location": _wkt(76.7850, 30.7330),
             },
             {
@@ -301,7 +301,7 @@ def seed_database() -> None:
                 "disaster_type": "FLOOD", "severity": "HIGH", "status": "ACTIVE",
                 "latitude": 30.7355, "longitude": 76.7900,
                 "affected_radius_meters": 1200.0, "estimated_casualties": 0,
-                "reporter_id": reporter_id,
+                "reporter_id": effective_reporter_id,
                 "location": _wkt(76.7900, 30.7355),
             },
             {
@@ -310,7 +310,7 @@ def seed_database() -> None:
                 "disaster_type": "ACCIDENT", "severity": "HIGH", "status": "RESPONDING",
                 "latitude": 30.7505, "longitude": 76.8105,
                 "affected_radius_meters": 200.0, "estimated_casualties": 5,
-                "reporter_id": reporter_id,
+                "reporter_id": effective_reporter_id,
                 "location": _wkt(76.8105, 30.7505),
             },
             {
@@ -319,7 +319,7 @@ def seed_database() -> None:
                 "disaster_type": "GAS_LEAK", "severity": "CRITICAL", "status": "REPORTED",
                 "latitude": 30.7150, "longitude": 76.7600,
                 "affected_radius_meters": 500.0, "estimated_casualties": 3,
-                "reporter_id": reporter_id,
+                "reporter_id": effective_reporter_id,
                 "location": _wkt(76.7600, 30.7150),
             },
             {
@@ -328,7 +328,7 @@ def seed_database() -> None:
                 "disaster_type": "FLOOD", "severity": "MEDIUM", "status": "MONITORING",
                 "latitude": 30.7040, "longitude": 76.7200,
                 "affected_radius_meters": 600.0, "estimated_casualties": 0,
-                "reporter_id": reporter_id,
+                "reporter_id": effective_reporter_id,
                 "location": _wkt(76.7200, 30.7040),
             },
         ]

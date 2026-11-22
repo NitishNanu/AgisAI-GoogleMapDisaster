@@ -7,6 +7,7 @@ Provides:
   FLOOD, FIRE, EARTHQUAKE, LANDSLIDE, CYCLONE, BUILDING_COLLAPSE, ROAD_ACCIDENT, INDUSTRIAL_ACCIDENT, OTHER.
 """
 
+from typing import Any
 import structlog
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -83,7 +84,7 @@ class DisasterNLPClassifier:
         except Exception as e:
             logger.error("nlp_disaster_classifier_training_failed", error=str(e))
 
-    def predict(self, text: str) -> dict[str, any]:
+    def predict(self, text: str) -> dict[str, Any]:
         """
         Classifies emergency text report.
 
@@ -120,7 +121,7 @@ class DisasterNLPClassifier:
             if c not in prob_dict:
                 prob_dict[c] = 0.0
 
-        best_class = max(prob_dict, key=prob_dict.get)
+        best_class = max(prob_dict, key=lambda k: prob_dict[k])
         best_confidence = prob_dict[best_class]
 
         # Extract top matching terms

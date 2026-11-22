@@ -75,6 +75,14 @@ class AuthService:
             email=user.email,
             role=user.role,
         )
+
+        # Seed initial demo data only when a new user registers
+        try:
+            from app.database.seeder import seed_database
+            seed_database(reporter_id=user.id)
+        except Exception as seed_err:
+            logger.warning("new_user_seed_failed", error=str(seed_err))
+
         return user
 
     @staticmethod
